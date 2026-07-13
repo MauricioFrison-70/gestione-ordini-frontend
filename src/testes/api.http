@@ -1,0 +1,24 @@
+POST http://localhost:8081/api/agenti
+Content-Type: application/json
+
+{
+  "nome": "Mauricio Bello Due",
+  "email": "teste@exemplo.com",
+  "tipoAg": "CLIENTE"
+}
+###
+GET http://localhost:8081/api/agenti/1
+###
+GET http://localhost:8081/api/agenti
+###
+PUT http://localhost:8081/api/agenti/9
+Content-Type: application/json
+
+{
+  "nome": "Mauricio Bello Atualizado",
+  "email": "teste@exemplo.com",
+  "tipoAg": "CLIENTE"
+}
+###
+DELETE http://localhost:8081/api/agenti/11
+
