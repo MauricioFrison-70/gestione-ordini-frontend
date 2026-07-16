@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../config/api";
+import { API_URL } from "../../../config/api";
 
 import {
   Box,
@@ -22,6 +22,9 @@ export default function CriarAgente() {
   const [tipoAgente, setTipoAgente] = useState("");
   const [tipos, setTipos] = useState<string[]>([]);
 
+  // 🔹 Campo invisível, sempre false
+  const [archiviato] = useState(false);
+
   useEffect(() => {
     fetch(`${API_URL}/tipo-agente`)
       .then((res) => res.json())
@@ -36,7 +39,7 @@ export default function CriarAgente() {
       const response = await fetch(`${API_URL}/agenti`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, tipoAgente }),
+        body: JSON.stringify({ nome, email, tipoAgente, archiviato }), // 🔹 sempre enviado
       });
 
       if (response.ok) {
@@ -53,8 +56,6 @@ export default function CriarAgente() {
   return (
     <Box display="flex" justifyContent="center" alignItems="flex-start" mt={4}>
       <Paper elevation={4} sx={{ width: 420, p: 5, pt: 6 }}>
-
-        {/* Ícone elegante de voltar */}
         <Box display="flex" alignItems="center" mb={4}>
           <IconButton
             color="primary"
@@ -70,7 +71,6 @@ export default function CriarAgente() {
           <Typography variant="h4">Criar Novo Agente</Typography>
         </Box>
 
-        {/* Formulário */}
         <Box
           component="form"
           onSubmit={salvar}

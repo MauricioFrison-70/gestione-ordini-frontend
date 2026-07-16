@@ -19,6 +19,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"; // 🔹 Ícone Dettagli
 
 export default function Agentes() {
   const [agentes, setAgentes] = useState<any[]>([]);
@@ -137,6 +140,16 @@ export default function Agentes() {
                 </TableSortLabel>
               </TableCell>
 
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "archiviato"}
+                  direction={orderBy === "archiviato" ? order : "asc"}
+                  onClick={() => handleSort("archiviato")}
+                >
+                  Attivo
+                </TableSortLabel>
+              </TableCell>
+
               <TableCell>Ações</TableCell>
             </TableRow>
           </TableHead>
@@ -150,11 +163,36 @@ export default function Agentes() {
                 <TableCell>{agente.tipoAgente}</TableCell>
 
                 <TableCell>
-                  <IconButton color="primary" onClick={() => navigate(`/agentes/editar/${agente.id}`)}>
+                  {agente.archiviato ? (
+                    <CancelIcon color="error" />
+                  ) : (
+                    <CheckCircleIcon color="success" />
+                  )}
+                </TableCell>
+
+                <TableCell>
+                  {/* 🔹 Botão Dettagli */}
+                  <IconButton
+                    color="info"
+                    onClick={() => navigate(`/agentes/detalhes/${agente.id}`)}
+                    title="Dettagli"
+                  >
+                    <InfoOutlinedIcon />
+                  </IconButton>
+
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/agentes/editar/${agente.id}`)}
+                    title="Modifica"
+                  >
                     <EditIcon />
                   </IconButton>
 
-                  <IconButton color="error" onClick={() => excluirAgente(agente.id)}>
+                  <IconButton
+                    color="error"
+                    onClick={() => excluirAgente(agente.id)}
+                    title="Elimina"
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -163,7 +201,7 @@ export default function Agentes() {
 
             {agentesFiltrados.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                   Nenhum agente encontrado.
                 </TableCell>
               </TableRow>
