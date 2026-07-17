@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { API_URL } from "../config/api";
+import { API_URL } from "../../../config/api";
 
 import {
   Box,
@@ -10,6 +10,8 @@ import {
   Button,
   MenuItem,
   IconButton,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -22,9 +24,10 @@ export default function EditarAgente() {
   const [email, setEmail] = useState("");
   const [tipoAgente, setTipoAgente] = useState("");
   const [tipos, setTipos] = useState<string[]>([]);
+  const [archiviato, setArchiviato] = useState(false);
   const [carregado, setCarregado] = useState(false);
 
-  useEffect(() => {    
+  useEffect(() => {
     fetch(`${API_URL}/tipo-agente`)
       .then((res) => res.json())
       .then((data) => setTipos(data))
@@ -33,7 +36,7 @@ export default function EditarAgente() {
 
   useEffect(() => {
     const carregarAgente = async () => {
-      try {        
+      try {
         const response = await fetch(`${API_URL}/agenti/${id}`);
 
         if (response.ok) {
@@ -41,6 +44,7 @@ export default function EditarAgente() {
           setNome(data.nome);
           setEmail(data.email);
           setTipoAgente(data.tipoAgente);
+          setArchiviato(data.archiviato ?? false);
           setCarregado(true);
         } else {
           alert("Agente não encontrado");
@@ -56,11 +60,11 @@ export default function EditarAgente() {
   const salvarAlteracoes = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {      
+    try {
       const response = await fetch(`${API_URL}/agenti/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, tipoAgente }),
+        body: JSON.stringify({ nome, email, tipoAgente, archiviato }),
       });
 
       if (response.ok) {
@@ -77,8 +81,6 @@ export default function EditarAgente() {
   return (
     <Box display="flex" justifyContent="center" alignItems="flex-start" mt={4}>
       <Paper elevation={4} sx={{ width: 420, p: 5, pt: 6 }}>
-
-        {/* Ícone elegante de voltar */}
         <Box display="flex" alignItems="center" mb={4}>
           <IconButton
             color="primary"
@@ -94,7 +96,6 @@ export default function EditarAgente() {
           <Typography variant="h4">Editar Agente</Typography>
         </Box>
 
-        {/* Conteúdo */}
         <Box sx={{ mt: 2 }}>
           {!carregado && (
             <Typography textAlign="center" mt={2}>
@@ -144,6 +145,17 @@ export default function EditarAgente() {
                   </MenuItem>
                 ))}
               </TextField>
+
+              {/* NOVO CAMPO: ARCHIVIATO */}
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={archiviato}
+                    onChange={(e) => setArchiviato(e.target.checked)}
+                  />
+                }
+                label="Archiviato"
+              />
 
               <Button type="submit" variant="contained" color="primary" fullWidth>
                 Salvar Modificações
