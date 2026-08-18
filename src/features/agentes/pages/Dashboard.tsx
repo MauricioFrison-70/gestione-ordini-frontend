@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Typography, IconButton } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -21,7 +21,7 @@ export default function Dashboard() {
       <Grid container spacing={3}>
         
         {/* Card: Lista Agenti */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper
             elevation={4}
             sx={{
@@ -35,7 +35,12 @@ export default function Dashboard() {
             }}
             onClick={() => navigate("/agentes")}
           >
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2
+              }}>
               <PeopleAltIcon color="primary" sx={{ fontSize: 40 }} />
               <Typography variant="h5">Agenti</Typography>
             </Box>
@@ -44,14 +49,18 @@ export default function Dashboard() {
               Gestisci tutti gli agenti registrati nel sistema.
             </Typography>
 
-            <Box display="flex" justifyContent="flex-end">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end"
+              }}>
               <ArrowForwardIosIcon sx={{ opacity: 0.6 }} />
             </Box>
           </Paper>
         </Grid>
 
         {/* Card: Crea Nuovo Agente */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper
             elevation={4}
             sx={{
@@ -65,7 +74,12 @@ export default function Dashboard() {
             }}
             onClick={() => navigate("/agentes/criar")}
           >
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2
+              }}>
               <AddCircleIcon color="success" sx={{ fontSize: 40 }} />
               <Typography variant="h5">Nuovo Agente</Typography>
             </Box>
@@ -74,14 +88,18 @@ export default function Dashboard() {
               Aggiungi rapidamente un nuovo agente al sistema.
             </Typography>
 
-            <Box display="flex" justifyContent="flex-end">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end"
+              }}>
               <ArrowForwardIosIcon sx={{ opacity: 0.6 }} />
             </Box>
           </Paper>
         </Grid>
 
         {/* Card: Report e Statistiche */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper
             elevation={4}
             sx={{
@@ -95,7 +113,12 @@ export default function Dashboard() {
             }}
             onClick={() => navigate("/relatorios")}
           >
-            <Box display="flex" alignItems="center" gap={2}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2
+              }}>
               <AssessmentIcon color="secondary" sx={{ fontSize: 40 }} />
               <Typography variant="h5">Report</Typography>
             </Box>
@@ -104,7 +127,11 @@ export default function Dashboard() {
               Visualizza metriche, grafici e statistiche del sistema.
             </Typography>
 
-            <Box display="flex" justifyContent="flex-end">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end"
+              }}>
               <ArrowForwardIosIcon sx={{ opacity: 0.6 }} />
             </Box>
           </Paper>

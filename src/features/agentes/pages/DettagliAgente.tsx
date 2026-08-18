@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Paper, Typography, Button, Divider } from "@mui/material";
+import type { Agente } from "../types/agente";
 
 export default function DettagliAgente() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [agente, setAgente] = useState<any>(null);
+  const [agente, setAgente] = useState<Agente | null>(null);
 
   useEffect(() => {
     fetch(`http://localhost:8081/api/agenti/${id}`)
       .then((res) => res.json())
-      .then((data) => setAgente(data))
+      .then((data: Agente) => setAgente(data))
       .catch(() => alert("Erro ao carregar detalhes do agente"));
   }, [id]);
 
@@ -24,9 +25,16 @@ export default function DettagliAgente() {
   }
 
   return (
-    <Box display="flex" justifyContent="center" mt={5}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        mt: 5
+      }}>
       <Paper elevation={4} sx={{ width: 480, p: 4 }}>
-        <Typography variant="h4" mb={3}>
+        <Typography variant="h4" sx={{
+          mb: 3
+        }}>
           Dettagli dell’Agente
         </Typography>
 
@@ -63,7 +71,11 @@ export default function DettagliAgente() {
 
         <Divider sx={{ my: 3 }} />
 
-        <Box display="flex" justifyContent="space-between">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between"
+          }}>
           <Button
             variant="outlined"
             color="primary"

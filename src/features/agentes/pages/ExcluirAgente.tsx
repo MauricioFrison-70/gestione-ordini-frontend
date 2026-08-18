@@ -1,21 +1,22 @@
 import { useState } from "react";
+import type { Agente } from "../types/agente";
 
 export default function ExcluirAgente() {
   const [id, setId] = useState("");
-  const [agente, setAgente] = useState<any>(null);
+  const [agente, setAgente] = useState<Agente | null>(null);
 
   const buscarAgente = async () => {
     try {
       const response = await fetch(`http://localhost:8081/api/agenti/${id}`);
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as Agente;
         setAgente(data);
       } else {
         alert("Agente non trovato");
         setAgente(null);
       }
-    } catch (error) {
+    } catch {
       alert("Errore di connessione");
     }
   };
@@ -36,7 +37,7 @@ export default function ExcluirAgente() {
       } else {
         alert("Errore nell'eliminazione dell'agente");
       }
-    } catch (error) {
+    } catch {
       alert("Errore di connessione");
     }
   };

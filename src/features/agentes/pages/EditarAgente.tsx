@@ -79,9 +79,20 @@ export default function EditarAgente() {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="flex-start" mt={4}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        mt: 4
+      }}>
       <Paper elevation={4} sx={{ width: 420, p: 5, pt: 6 }}>
-        <Box display="flex" alignItems="center" mb={4}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 4
+          }}>
           <IconButton
             color="primary"
             onClick={() => navigate("/agentes")}
@@ -98,7 +109,11 @@ export default function EditarAgente() {
 
         <Box sx={{ mt: 2 }}>
           {!carregado && (
-            <Typography textAlign="center" mt={2}>
+            <Typography
+              sx={{
+                textAlign: "center",
+                mt: 2
+              }}>
               Carregando dados...
             </Typography>
           )}
@@ -107,10 +122,11 @@ export default function EditarAgente() {
             <Box
               component="form"
               onSubmit={salvarAlteracoes}
-              display="flex"
-              flexDirection="column"
-              gap={3}
-            >
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 3
+              }}>
               <TextField
                 label="Nome"
                 variant="outlined"
