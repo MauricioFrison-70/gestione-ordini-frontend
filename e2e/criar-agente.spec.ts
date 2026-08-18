@@ -20,9 +20,9 @@ test('cria um agente e envia os dados corretos para a API', async ({ page }) => 
   await page.goto('/agentes/criar')
   await page.getByRole('textbox', { name: 'Nome' }).fill('Mario Rossi')
   await page.getByRole('textbox', { name: 'Email' }).fill('mario.rossi@example.com')
-  await page.getByRole('combobox', { name: 'Tipo de Agente' }).click()
+  await page.getByRole('combobox', { name: 'Tipo di agente' }).click()
   await page.getByRole('option', { name: 'VENDITORE' }).click()
-  await page.getByRole('button', { name: 'Criar Agente' }).click()
+  await page.getByRole('button', { name: 'Crea agente' }).click()
 
   await expect(page).toHaveURL(/\/agentes$/)
   expect(corpoDaRequisicao).toEqual({
