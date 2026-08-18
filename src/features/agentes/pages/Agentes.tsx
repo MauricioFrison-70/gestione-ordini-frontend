@@ -21,32 +21,45 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import type { Agente } from "../types/agente";
+
+type ColunaOrdenacao = keyof Pick<Agente, "id" | "nome" | "email" | "tipoAgente" | "archiviato">;
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"; // 🔹 Ícone Dettagli
 
+async function buscarAgentes(): Promise<Agente[]> {
+  const response = await fetch("http://localhost:8081/api/agenti");
+
+  if (!response.ok) {
+    throw new Error("Erro ao carregar agentes");
+  }
+
+  return response.json() as Promise<Agente[]>;
+}
+
 export default function Agentes() {
-  const [agentes, setAgentes] = useState<any[]>([]);
+  const [agentes, setAgentes] = useState<Agente[]>([]);
   const [busca, setBusca] = useState("");
 
-  const [orderBy, setOrderBy] = useState("nome");
+  const [orderBy, setOrderBy] = useState<ColunaOrdenacao>("nome");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    carregarAgentes();
-  }, []);
+    let componenteAtivo = true;
 
-  const carregarAgentes = async () => {
-    try {
-      const response = await fetch("http://localhost:8081/api/agenti");
-      if (response.ok) {
-        const data = await response.json();
-        setAgentes(data);
-      }
-    } catch {
-      alert("Erro ao carregar agentes");
-    }
-  };
+    void buscarAgentes()
+      .then((data) => {
+        if (componenteAtivo) {
+          setAgentes(data);
+        }
+      })
+      .catch(() => alert("Erro ao carregar agentes"));
+
+    return () => {
+      componenteAtivo = false;
+    };
+  }, []);
 
   const excluirAgente = async (id: number) => {
     if (!confirm("Deseja realmente excluir este agente?")) return;
@@ -56,13 +69,13 @@ export default function Agentes() {
         method: "DELETE",
       });
 
-      if (response.ok) carregarAgentes();
+      if (response.ok) setAgentes(await buscarAgentes());
     } catch {
       alert("Erro ao excluir agente");
     }
   };
 
-  const handleSort = (column: string) => {
+  const handleSort = (column: ColunaOrdenacao) => {
     const isAsc = orderBy === column && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(column);
@@ -80,7 +93,13 @@ export default function Agentes() {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3
+        }}>
         <Typography variant="h1">Lista de Agentes</Typography>
 
         <IconButton color="success" onClick={() => navigate("/agentes/criar")}>
