@@ -5,7 +5,7 @@ Content-Type: application/json
   "nome": "Mauricio Bello Due",
   "email": "teste@exemplo.com",
   "tipoAgente": "CLIENTE",
-  "inativo": false
+  "archiviato": false
 }
 ###
 GET http://localhost:8081/api/agenti/1
@@ -19,8 +19,7 @@ Content-Type: application/json
   "nome": "Mauricio Bello Atualizado",
   "email": "teste@eXyxemplo.com",
   "tipoAgente": "CLIENTE",
-  "inativo": true
+  "archiviato": true
 }
 ###
 DELETE http://localhost:8081/api/agenti/11
-
