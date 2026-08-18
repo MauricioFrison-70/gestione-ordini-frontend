@@ -1,78 +1,102 @@
-# Gestione Ordini – Frontend
+# Gestione Ordini — Frontend
 
-Frontend sviluppato in **React + TypeScript**, con **Vite** come bundler e **Material UI** come libreria di componenti.  
-L’applicazione comunica con il backend Spring Boot tramite API REST.
+Frontend per la gestione di agenti e prodotti. È sviluppato con React, TypeScript e Vite e comunica con il backend Spring Boot tramite API REST.
 
----
+L'interfaccia utente è in italiano. Le notifiche e le conferme di eliminazione usano i componenti di Material UI.
 
-## 🚀 Tecnologie utilizzate
+## Tecnologie
 
-### Frontend
-- React 19
-- TypeScript 6
+- React 19 e TypeScript 6
 - Vite 8
+- Material UI (MUI) 9 e Emotion
 - React Router DOM 7
-- Axios 1.18
+- Fetch API nativa del browser
+- Vitest e Testing Library per i test unitari
+- Playwright per i test end-to-end
 
-### UI / Stile
-- Material UI (MUI)
-- Emotion (styled + react)
+## Prerequisiti
 
-### Strumenti di sviluppo
-- ESLint 10
-- Typescript ESLint
-- @vitejs/plugin-react
-- Tipi: @types/react, @types/react-dom, @types/node
+- Node.js `20.19+` oppure `22.12+`
+- Backend in esecuzione per usare l'applicazione e i test E2E
 
----
+## Installazione e avvio
 
-## 📦 Installazione
-
-Assicurati di avere Node.js installato (versione consigliata: 18+).
+Installa le dipendenze:
 
 ```bash
 npm install
-▶️ Avvio in modalità sviluppo
-bash
+```
+
+Crea il file `.env` a partire dal modello `.env.example` e configura l'URL del backend:
+
+```env
+VITE_API_URL=http://localhost:8081/api
+```
+
+Avvia l'applicazione in modalità di sviluppo:
+
+```bash
 npm run dev
-Il server di sviluppo Vite sarà disponibile su:
+```
 
-Código
-http://localhost:5173
-🏗️ Build per la produzione
-bash
-npm run build
-I file finali verranno generati nella cartella dist/.
+Vite espone normalmente l'applicazione su `http://localhost:5173`.
 
-🔗 Integrazione con il backend
-Il backend del progetto è disponibile qui:
+> Le variabili che iniziano con `VITE_` sono incluse nel bundle del browser. Non inserire password, token o altri segreti in queste variabili.
 
-https://github.com/MauricioFrison-70/gestione-ordini-backend
+## Script disponibili
 
-Le chiamate HTTP vengono gestite tramite Axios, nella cartella src/services.
+| Comando | Descrizione |
+| --- | --- |
+| `npm run dev` | Avvia il server di sviluppo. |
+| `npm run build` | Esegue il controllo TypeScript e genera il bundle in `dist/`. |
+| `npm run lint` | Analizza il codice con ESLint. |
+| `npm test` | Esegue i test unitari con Vitest. |
+| `npm run test:watch` | Esegue Vitest in modalità interattiva. |
+| `npm run test:e2e` | Esegue i test end-to-end con Playwright. |
+| `npm run preview` | Avvia un'anteprima locale del bundle di produzione. |
 
-📁 Struttura del progetto
-Código
+Per i test E2E, il backend deve essere raggiungibile all'URL configurato in `VITE_API_URL` e il browser Playwright deve essere installato.
+
+## Funzionalità attuali
+
+- Gestione degli agenti: elenco, ricerca, creazione, modifica, dettagli ed eliminazione.
+- Gestione dei prodotti: elenco, ricerca, creazione, modifica, dettagli ed eliminazione.
+- Codice prodotto immutabile dopo la creazione, in conformità con il contratto del backend.
+- Notifiche globali e dialoghi di conferma basati su MUI.
+
+## Struttura del progetto
+
+```text
 src/
-  assets/        # Risorse statiche (immagini, icone, ecc.)
-  components/    # Componenti riutilizzabili (es. Menu)
-  pages/         # Pagine principali (Dashboard, Agenti, ecc.)
-  services/      # Comunicazione con il backend tramite Axios
-  config/        # Configurazioni generali
-  testes/        # File di test o prova
-🧪 Script disponibili
-json
-"dev": "vite",
-"build": "tsc -b && vite build",
-"lint": "eslint .",
-"preview": "vite preview"
-dev: avvia il server di sviluppo
+├── components/              # Menu e feedback globale
+├── config/                  # Configurazione dell'API
+├── features/
+│   ├── agentes/             # Modulo agenti e relativi test
+│   └── prodotti/            # Modulo prodotti e relativi test
+├── services/                # Client HTTP per agenti e prodotti
+├── test/                    # Configurazione condivisa di Vitest
+├── App.tsx                  # Rotte dell'applicazione
+└── theme.ts                 # Tema Material UI
+e2e/                         # Test Playwright
+http/                        # Richieste HTTP manuali
+```
 
-build: compila TypeScript e genera il build di produzione
+## Integrazione con il backend
 
-lint: esegue ESLint
+Il frontend utilizza i seguenti endpoint principali:
 
-preview: avvia un server di anteprima del build
+- `/api/agenti`
+- `/api/tipo-agente`
+- `/api/prodotti`
 
-📜 Licenza
-Progetto ad uso personale/studio.
+Il repository del backend è disponibile su [gestione-ordini-backend](https://github.com/MauricioFrison-70/gestione-ordini-backend).
+
+## Qualità del codice
+
+Prima di aprire una pull request, esegui almeno:
+
+```bash
+npm run lint
+npm test
+npm run build
+```

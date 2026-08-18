@@ -1,184 +1,90 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { API_URL } from "../../../config/api";
-
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  MenuItem,
-  IconButton,
-  Checkbox,
-  FormControlLabel,
-} from "@mui/material";
-
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { Box, Button, Checkbox, FormControlLabel, IconButton, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import { useFeedback } from "../../../components/useFeedback";
+import { atualizarAgente, buscarAgentePorId, listarTiposAgente } from "../../../services/agenteService";
+import type { TipoAgente } from "../types/agente";
 
 export default function EditarAgente() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [tipoAgente, setTipoAgente] = useState("");
-  const [tipos, setTipos] = useState<string[]>([]);
+  const [tipoAgente, setTipoAgente] = useState<TipoAgente | "">("");
+  const [tipos, setTipos] = useState<TipoAgente[]>([]);
   const [archiviato, setArchiviato] = useState(false);
   const [carregado, setCarregado] = useState(false);
+  const { mostraMessaggio } = useFeedback();
 
   useEffect(() => {
-    fetch(`${API_URL}/tipo-agente`)
-      .then((res) => res.json())
-      .then((data) => setTipos(data))
-      .catch(() => alert("Erro ao carregar tipos de agente"));
-  }, []);
+    listarTiposAgente()
+      .then(setTipos)
+      .catch(() => mostraMessaggio("Errore nel caricamento dei tipi di agente", "error"));
+  }, [mostraMessaggio]);
 
   useEffect(() => {
-    const carregarAgente = async () => {
-      try {
-        const response = await fetch(`${API_URL}/agenti/${id}`);
+    if (!id) return;
 
-        if (response.ok) {
-          const data = await response.json();
-          setNome(data.nome);
-          setEmail(data.email);
-          setTipoAgente(data.tipoAgente);
-          setArchiviato(data.archiviato ?? false);
-          setCarregado(true);
-        } else {
-          alert("Agente não encontrado");
-        }
-      } catch {
-        alert("Erro de conexão");
-      }
-    };
-
-    carregarAgente();
-  }, [id]);
+    void buscarAgentePorId(Number(id))
+      .then((agente) => {
+        setNome(agente.nome);
+        setEmail(agente.email);
+        setTipoAgente(agente.tipoAgente);
+        setArchiviato(agente.archiviato ?? false);
+        setCarregado(true);
+      })
+      .catch(() => mostraMessaggio("Agente non trovato", "error"));
+  }, [id, mostraMessaggio]);
 
   const salvarAlteracoes = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      const response = await fetch(`${API_URL}/agenti/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, tipoAgente, archiviato }),
-      });
+    if (!id || !tipoAgente) return;
 
-      if (response.ok) {
-        alert("Agente atualizado com sucesso!");
-        navigate("/agentes");
-      } else {
-        alert("Erro ao atualizar agente");
-      }
+    try {
+      await atualizarAgente(Number(id), { nome, email, tipoAgente, archiviato });
+      mostraMessaggio("Agente aggiornato con successo!", "success");
+      navigate("/agentes");
     } catch {
-      alert("Erro de conexão");
+      mostraMessaggio("Errore nell’aggiornamento dell’agente", "error");
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        mt: 4
-      }}>
+    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "flex-start", mt: 4 }}>
       <Paper elevation={4} sx={{ width: 420, p: 5, pt: 6 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            mb: 4
-          }}>
-          <IconButton
-            color="primary"
-            onClick={() => navigate("/agentes")}
-            sx={{
-              mr: 2,
-              "&:hover": { color: "secondary.light" },
-            }}
-          >
+        <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
+          <IconButton color="primary" onClick={() => navigate("/agentes")} sx={{ mr: 2, "&:hover": { color: "secondary.light" } }}>
             <ArrowBackIosNewIcon />
           </IconButton>
-
-          <Typography variant="h4">Editar Agente</Typography>
+          <Typography variant="h4">Modifica agente</Typography>
         </Box>
 
-        <Box sx={{ mt: 2 }}>
-          {!carregado && (
-            <Typography
-              sx={{
-                textAlign: "center",
-                mt: 2
-              }}>
-              Carregando dados...
-            </Typography>
-          )}
+        {!carregado && <Typography sx={{ textAlign: "center", mt: 2 }}>Caricamento dati...</Typography>}
 
-          {carregado && (
-            <Box
-              component="form"
-              onSubmit={salvarAlteracoes}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 3
-              }}>
-              <TextField
-                label="Nome"
-                variant="outlined"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                required
-                fullWidth
-              />
-
-              <TextField
-                label="Email"
-                type="email"
-                variant="outlined"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                fullWidth
-              />
-
-              <TextField
-                select
-                label="Tipo de Agente"
-                value={tipoAgente}
-                onChange={(e) => setTipoAgente(e.target.value)}
-                required
-                fullWidth
-              >
-                <MenuItem value="">Selecione...</MenuItem>
-                {tipos.map((t) => (
-                  <MenuItem key={t} value={t}>
-                    {t}
-                  </MenuItem>
-                ))}
-              </TextField>
-
-              {/* NOVO CAMPO: ARCHIVIATO */}
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={archiviato}
-                    onChange={(e) => setArchiviato(e.target.checked)}
-                  />
-                }
-                label="Archiviato"
-              />
-
-              <Button type="submit" variant="contained" color="primary" fullWidth>
-                Salvar Modificações
-              </Button>
-            </Box>
-          )}
-        </Box>
+        {carregado && (
+          <Box component="form" onSubmit={salvarAlteracoes} sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 2 }}>
+            <TextField label="Nome" variant="outlined" value={nome} onChange={(e) => setNome(e.target.value)} required fullWidth />
+            <TextField label="Email" type="email" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} required fullWidth />
+            <TextField
+              select
+              label="Tipo di agente"
+              value={tipoAgente}
+              onChange={(e) => setTipoAgente(e.target.value as TipoAgente | "")}
+              required
+              fullWidth
+            >
+              <MenuItem value="">Seleziona...</MenuItem>
+              {tipos.map((tipo) => <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>)}
+            </TextField>
+            <FormControlLabel
+              control={<Checkbox checked={archiviato} onChange={(e) => setArchiviato(e.target.checked)} />}
+              label="Archiviato"
+            />
+            <Button type="submit" variant="contained" color="primary" fullWidth>Salva modifiche</Button>
+          </Box>
+        )}
       </Paper>
     </Box>
   );

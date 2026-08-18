@@ -30,6 +30,10 @@ export default function Menu() {
         <ListItemButton onClick={() => navigate("/agentes")}>
           <ListItemText primary="Agentes" />
         </ListItemButton>
+
+        <ListItemButton onClick={() => navigate("/prodotti")}>
+          <ListItemText primary="Prodotti" />
+        </ListItemButton>
         
       </List>
     </Drawer>

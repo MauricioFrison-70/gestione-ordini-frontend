@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { FeedbackProvider } from '../../../components/FeedbackProvider'
 import Agentes from './Agentes'
 
 const API_URL = 'http://localhost:8081/api/agenti'
@@ -13,9 +14,11 @@ const agentes = [
 
 function renderizarTela() {
   return render(
-    <MemoryRouter>
-      <Agentes />
-    </MemoryRouter>,
+    <FeedbackProvider>
+      <MemoryRouter>
+        <Agentes />
+      </MemoryRouter>
+    </FeedbackProvider>,
   )
 }
 
@@ -33,10 +36,24 @@ describe('Agentes', () => {
     expect(await screen.findByText('Mario Rossi')).toBeInTheDocument()
     expect(screen.getByText('Giulia Bianchi')).toBeInTheDocument()
 
-    await usuario.type(screen.getByRole('textbox', { name: 'Buscar por nome' }), 'giulia')
+    await usuario.type(screen.getByRole('textbox', { name: 'Cerca per nome' }), 'giulia')
 
     expect(screen.queryByText('Mario Rossi')).not.toBeInTheDocument()
     expect(screen.getByText('Giulia Bianchi')).toBeInTheDocument()
+  })
+
+  it('exibe carregamento e informa erro quando a listagem falha', async () => {
+    let concluirRequisicao: ((value: unknown) => void) | undefined
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => new Promise((resolve) => {
+      concluirRequisicao = resolve
+    })))
+
+    renderizarTela()
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+    concluirRequisicao?.({ ok: false })
+
+    expect(await screen.findByText('Errore nel caricamento degli agenti')).toBeInTheDocument()
   })
 
   it('exclui o agente após a confirmação do usuário', async () => {
@@ -45,14 +62,13 @@ describe('Agentes', () => {
       .mockResolvedValueOnce({ ok: true })
       .mockResolvedValueOnce({ ok: true, json: async () => agentes.filter((agente) => agente.id !== 1) })
     vi.stubGlobal('fetch', fetchMock)
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
-
     renderizarTela()
 
     const nomeDoMario = await screen.findByText('Mario Rossi')
     const linhaDoMario = nomeDoMario.closest('tr')
     expect(linhaDoMario).not.toBeNull()
     await userEvent.click(within(linhaDoMario!).getByTitle('Elimina'))
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Elimina' }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, { method: 'DELETE' })

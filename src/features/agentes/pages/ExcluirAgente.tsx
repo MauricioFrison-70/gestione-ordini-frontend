@@ -1,84 +1,73 @@
 import { useState } from "react";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { useFeedback } from "../../../components/useFeedback";
+import { buscarAgentePorId, excluirAgente } from "../../../services/agenteService";
 import type { Agente } from "../types/agente";
 
 export default function ExcluirAgente() {
   const [id, setId] = useState("");
   const [agente, setAgente] = useState<Agente | null>(null);
+  const [confermaAperta, setConfermaAperta] = useState(false);
+  const { mostraMessaggio } = useFeedback();
 
   const buscarAgente = async () => {
     try {
-      const response = await fetch(`http://localhost:8081/api/agenti/${id}`);
-
-      if (response.ok) {
-        const data = await response.json() as Agente;
-        setAgente(data);
-      } else {
-        alert("Agente non trovato");
-        setAgente(null);
-      }
+      setAgente(await buscarAgentePorId(Number(id)));
     } catch {
-      alert("Errore di connessione");
+      mostraMessaggio("Agente non trovato", "error");
+      setAgente(null);
     }
   };
 
-  const excluir = async () => {
-    const confirmar = confirm("Sei sicuro di voler eliminare questo agente?");
-    if (!confirmar) return;
+  const confirmarExclusao = async () => {
+    if (!agente) return;
 
     try {
-      const response = await fetch(`http://localhost:8081/api/agenti/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        alert("Agente eliminato con successo!");
-        setId("");
-        setAgente(null);
-      } else {
-        alert("Errore nell'eliminazione dell'agente");
-      }
+      await excluirAgente(agente.id);
+      mostraMessaggio("Agente eliminato con successo!", "success");
+      setId("");
+      setAgente(null);
     } catch {
-      alert("Errore di connessione");
+      mostraMessaggio("Errore nell'eliminazione dell'agente", "error");
+    } finally {
+      setConfermaAperta(false);
     }
   };
 
   return (
     <div>
       <h1>Elimina Agente</h1>
-
-      <label>ID dell'agente:</label>
+      <label>ID dell'agente:</label><br />
+      <input type="text" value={id} onChange={(e) => setId(e.target.value)} />
       <br />
-      <input
-        type="text"
-        value={id}
-        onChange={(e) => setId(e.target.value)}
-      />
-      <br />
-      <button onClick={buscarAgente} style={{ marginTop: "10px" }}>
-        Cerca
-      </button>
+      <button onClick={buscarAgente} style={{ marginTop: "10px" }}>Cerca</button>
 
       {agente && (
         <div style={{ marginTop: "20px" }}>
           <h3>Agente trovato:</h3>
           <p><strong>ID:</strong> {agente.id}</p>
           <p><strong>Nome:</strong> {agente.nome}</p>
-
           <button
-            onClick={excluir}
-            style={{
-              marginTop: "10px",
-              backgroundColor: "red",
-              color: "white",
-              padding: "8px 12px",
-              border: "none",
-              cursor: "pointer",
-            }}
+            onClick={() => setConfermaAperta(true)}
+            style={{ marginTop: "10px", backgroundColor: "red", color: "white", padding: "8px 12px", border: "none", cursor: "pointer" }}
           >
             Elimina
           </button>
         </div>
       )}
+
+      <Dialog open={confermaAperta} onClose={() => setConfermaAperta(false)}>
+        <DialogTitle>Conferma eliminazione</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Vuoi eliminare l&apos;agente {agente?.nome}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfermaAperta(false)}>Annulla</Button>
+          <Button color="error" variant="contained" onClick={confirmarExclusao}>Elimina</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
