@@ -4,6 +4,16 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, Button, Checkbox, CircularProgress, FormControlLabel, IconButton, Paper, TextField, Typography } from '@mui/material'
 import { useFeedback } from '../../../components/useFeedback'
 import { aggiornareProdotto, cercareProdottoPerId } from '../../../services/prodottoService'
+import {
+  accettareInputDecimale,
+  accettareInputIntero,
+  convertireDecimale,
+  decimaleValido,
+  formattareDecimale,
+  interoValido,
+} from '../utils/numeri'
+
+const messaggioFormatoNonValido = 'Inserisci importi con la virgola e al massimo due cifre decimali. Quantità e scorta minima devono essere numeri interi.'
 
 export default function ModificareProdotto() {
   const { id } = useParams()
@@ -26,8 +36,8 @@ export default function ModificareProdotto() {
       .then((prodotto) => {
         setCodice(prodotto.codice)
         setDescrizione(prodotto.descrizione)
-        setValoreAcquisto(String(prodotto.valoreAcquisto))
-        setValoreVendita(String(prodotto.valoreVendita))
+        setValoreAcquisto(formattareDecimale(prodotto.valoreAcquisto))
+        setValoreVendita(formattareDecimale(prodotto.valoreVendita))
         setQuantita(String(prodotto.quantita))
         setScortaMinima(String(prodotto.scortaMinima))
         setArchiviato(prodotto.archiviato)
@@ -40,12 +50,17 @@ export default function ModificareProdotto() {
     event.preventDefault()
     if (!id) return
 
+    if (!decimaleValido(valoreAcquisto) || !decimaleValido(valoreVendita) || !interoValido(quantita) || !interoValido(scortaMinima)) {
+      mostraMessaggio(messaggioFormatoNonValido, 'error')
+      return
+    }
+
     setSalvando(true)
     try {
       await aggiornareProdotto(Number(id), {
         descrizione,
-        valoreAcquisto: Number(valoreAcquisto),
-        valoreVendita: Number(valoreVendita),
+        valoreAcquisto: convertireDecimale(valoreAcquisto),
+        valoreVendita: convertireDecimale(valoreVendita),
         quantita: Number(quantita),
         scortaMinima: Number(scortaMinima),
         archiviato,
@@ -72,11 +87,51 @@ export default function ModificareProdotto() {
         </Box>
         <Box component="form" onSubmit={salvare} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="Codice" value={codice} disabled fullWidth helperText="Il codice non può essere modificato." />
-          <TextField label="Descrizione" value={descrizione} onChange={(event) => setDescrizione(event.target.value)} required fullWidth />
-          <TextField label="Valore di acquisto" type="number" slotProps={{ htmlInput: { min: 0, step: '0.01' } }} value={valoreAcquisto} onChange={(event) => setValoreAcquisto(event.target.value)} required fullWidth />
-          <TextField label="Valore di vendita" type="number" slotProps={{ htmlInput: { min: 0, step: '0.01' } }} value={valoreVendita} onChange={(event) => setValoreVendita(event.target.value)} required fullWidth />
-          <TextField label="Quantità" type="number" slotProps={{ htmlInput: { min: 0, step: 1 } }} value={quantita} onChange={(event) => setQuantita(event.target.value)} required fullWidth />
-          <TextField label="Scorta minima" type="number" slotProps={{ htmlInput: { min: 0, step: 1 } }} value={scortaMinima} onChange={(event) => setScortaMinima(event.target.value)} required fullWidth />
+          <TextField
+            label="Descrizione"
+            value={descrizione}
+            onChange={(event) => setDescrizione(event.target.value)}
+            slotProps={{ htmlInput: { maxLength: 30 } }}
+            helperText="Massimo 30 caratteri."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Valore di acquisto"
+            value={valoreAcquisto}
+            onChange={(event) => accettareInputDecimale(event.target.value) && setValoreAcquisto(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'decimal', maxLength: 11 } }}
+            helperText="Usa la virgola; massimo 2 decimali."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Valore di vendita"
+            value={valoreVendita}
+            onChange={(event) => accettareInputDecimale(event.target.value) && setValoreVendita(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'decimal', maxLength: 11 } }}
+            helperText="Usa la virgola; massimo 2 decimali."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Quantità"
+            value={quantita}
+            onChange={(event) => accettareInputIntero(event.target.value) && setQuantita(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            helperText="Sono ammessi solo numeri interi."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Scorta minima"
+            value={scortaMinima}
+            onChange={(event) => accettareInputIntero(event.target.value) && setScortaMinima(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            helperText="Sono ammessi solo numeri interi."
+            required
+            fullWidth
+          />
           <FormControlLabel control={<Checkbox checked={archiviato} onChange={(event) => setArchiviato(event.target.checked)} />} label="Archiviato" />
           <Button type="submit" variant="contained" disabled={salvando}>{salvando ? 'Salvataggio...' : 'Salva modifiche'}</Button>
         </Box>

@@ -4,6 +4,15 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, Button, IconButton, Paper, TextField, Typography } from '@mui/material'
 import { useFeedback } from '../../../components/useFeedback'
 import { creareProdotto } from '../../../services/prodottoService'
+import {
+  accettareInputDecimale,
+  accettareInputIntero,
+  convertireDecimale,
+  decimaleValido,
+  interoValido,
+} from '../utils/numeri'
+
+const messaggioFormatoNonValido = 'Inserisci importi con la virgola e al massimo due cifre decimali. Quantità e scorta minima devono essere numeri interi.'
 
 export default function CreareProdotto() {
   const navigate = useNavigate()
@@ -18,22 +27,28 @@ export default function CreareProdotto() {
 
   const salvare = async (event: React.FormEvent) => {
     event.preventDefault()
-    setSalvando(true)
 
+    if (!decimaleValido(valoreAcquisto) || !decimaleValido(valoreVendita) || !interoValido(quantita) || !interoValido(scortaMinima)) {
+      mostraMessaggio(messaggioFormatoNonValido, 'error')
+      return
+    }
+
+    setSalvando(true)
     try {
       await creareProdotto({
         codice,
         descrizione,
-        valoreAcquisto: Number(valoreAcquisto),
-        valoreVendita: Number(valoreVendita),
+        valoreAcquisto: convertireDecimale(valoreAcquisto),
+        valoreVendita: convertireDecimale(valoreVendita),
         quantita: Number(quantita),
         scortaMinima: Number(scortaMinima),
         archiviato: false,
       })
       mostraMessaggio('Prodotto creato con successo!', 'success')
       navigate('/prodotti')
-    } catch {
-      mostraMessaggio('Errore nella creazione del prodotto', 'error')
+    } catch (errore) {
+      const messaggio = errore instanceof Error ? errore.message : 'Errore nella creazione del prodotto'
+      mostraMessaggio(messaggio, 'error')
     } finally {
       setSalvando(false)
     }
@@ -47,12 +62,60 @@ export default function CreareProdotto() {
           <Typography variant="h4">Crea nuovo prodotto</Typography>
         </Box>
         <Box component="form" onSubmit={salvare} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField label="Codice" value={codice} onChange={(event) => setCodice(event.target.value)} required fullWidth />
-          <TextField label="Descrizione" value={descrizione} onChange={(event) => setDescrizione(event.target.value)} required fullWidth />
-          <TextField label="Valore di acquisto" type="number" slotProps={{ htmlInput: { min: 0, step: '0.01' } }} value={valoreAcquisto} onChange={(event) => setValoreAcquisto(event.target.value)} required fullWidth />
-          <TextField label="Valore di vendita" type="number" slotProps={{ htmlInput: { min: 0, step: '0.01' } }} value={valoreVendita} onChange={(event) => setValoreVendita(event.target.value)} required fullWidth />
-          <TextField label="Quantità" type="number" slotProps={{ htmlInput: { min: 0, step: 1 } }} value={quantita} onChange={(event) => setQuantita(event.target.value)} required fullWidth />
-          <TextField label="Scorta minima" type="number" slotProps={{ htmlInput: { min: 0, step: 1 } }} value={scortaMinima} onChange={(event) => setScortaMinima(event.target.value)} required fullWidth />
+          <TextField
+            label="Codice"
+            value={codice}
+            onChange={(event) => setCodice(event.target.value)}
+            slotProps={{ htmlInput: { maxLength: 6 } }}
+            helperText="Massimo 6 caratteri."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Descrizione"
+            value={descrizione}
+            onChange={(event) => setDescrizione(event.target.value)}
+            slotProps={{ htmlInput: { maxLength: 30 } }}
+            helperText="Massimo 30 caratteri."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Valore di acquisto"
+            value={valoreAcquisto}
+            onChange={(event) => accettareInputDecimale(event.target.value) && setValoreAcquisto(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'decimal', maxLength: 11 } }}
+            helperText="Usa la virgola; massimo 2 decimali."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Valore di vendita"
+            value={valoreVendita}
+            onChange={(event) => accettareInputDecimale(event.target.value) && setValoreVendita(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'decimal', maxLength: 11 } }}
+            helperText="Usa la virgola; massimo 2 decimali."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Quantità"
+            value={quantita}
+            onChange={(event) => accettareInputIntero(event.target.value) && setQuantita(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            helperText="Sono ammessi solo numeri interi."
+            required
+            fullWidth
+          />
+          <TextField
+            label="Scorta minima"
+            value={scortaMinima}
+            onChange={(event) => accettareInputIntero(event.target.value) && setScortaMinima(event.target.value)}
+            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
+            helperText="Sono ammessi solo numeri interi."
+            required
+            fullWidth
+          />
           <Button type="submit" variant="contained" disabled={salvando}>{salvando ? 'Salvataggio...' : 'Crea prodotto'}</Button>
         </Box>
       </Paper>

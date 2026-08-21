@@ -7,6 +7,22 @@ async function eseguireRichiesta<T>(url: string, messaggioErrore: string, init?:
   const response = init ? await fetch(url, init) : await fetch(url)
 
   if (!response.ok) {
+    let dettaglioErrore: string | null = null
+
+    try {
+      const corpo: unknown = await response.json()
+
+        if (typeof corpo === 'object' && corpo !== null && 'errore' in corpo && typeof corpo.errore === 'string') {
+          dettaglioErrore = corpo.errore
+        }
+    } catch {
+      // Alcune risposte di errore non possiedono un corpo JSON.
+    }
+
+    if (dettaglioErrore) {
+      throw new Error(dettaglioErrore)
+    }
+
     throw new Error(messaggioErrore)
   }
 

@@ -11,7 +11,7 @@ import type { ProdottoRequest, ProdottoUpdateRequest } from '../features/prodott
 const API_URL = 'http://localhost:8081/api/prodotti'
 
 const nuovoProdotto: ProdottoRequest = {
-  codice: 'SKU-001',
+  codice: 'SKU001',
   descrizione: 'Penna blu',
   valoreAcquisto: 1.5,
   valoreVendita: 3,
@@ -63,10 +63,10 @@ describe('prodottoService', () => {
       scortaMinima: 4,
       archiviato: false,
     }
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1, codice: 'SKU-001', ...aggiornamento }) })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1, codice: 'SKU001', ...aggiornamento }) })
     vi.stubGlobal('fetch', fetchMock)
 
-    await expect(aggiornareProdotto(1, aggiornamento)).resolves.toEqual({ id: 1, codice: 'SKU-001', ...aggiornamento })
+    await expect(aggiornareProdotto(1, aggiornamento)).resolves.toEqual({ id: 1, codice: 'SKU001', ...aggiornamento })
     expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -86,5 +86,14 @@ describe('prodottoService', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
 
     await expect(creareProdotto(nuovoProdotto)).rejects.toThrow('Errore nella creazione del prodotto')
+  })
+
+  it('propaga il messaggio della API quando il codice è duplicato', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ errore: "Esiste già un prodotto con il codice 'SKU001'." }),
+    }))
+
+    await expect(creareProdotto(nuovoProdotto)).rejects.toThrow("Esiste già un prodotto con il codice 'SKU001'.")
   })
 })

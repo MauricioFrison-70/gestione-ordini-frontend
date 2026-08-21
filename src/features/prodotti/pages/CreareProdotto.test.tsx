@@ -29,12 +29,12 @@ describe('CreareProdotto', () => {
     vi.stubGlobal('fetch', fetchMock)
     renderizarTela()
 
-    await utente.type(screen.getByRole('textbox', { name: 'Codice' }), 'SKU-001')
+    await utente.type(screen.getByRole('textbox', { name: 'Codice' }), 'SKU001')
     await utente.type(screen.getByRole('textbox', { name: 'Descrizione' }), 'Penna blu')
-    await utente.type(screen.getByRole('spinbutton', { name: 'Valore di acquisto' }), '1.5')
-    await utente.type(screen.getByRole('spinbutton', { name: 'Valore di vendita' }), '3')
-    await utente.type(screen.getByRole('spinbutton', { name: 'Quantità' }), '20')
-    await utente.type(screen.getByRole('spinbutton', { name: 'Scorta minima' }), '5')
+    await utente.type(screen.getByRole('textbox', { name: 'Valore di acquisto' }), '1,50')
+    await utente.type(screen.getByRole('textbox', { name: 'Valore di vendita' }), '3,00')
+    await utente.type(screen.getByRole('textbox', { name: 'Quantità' }), '20')
+    await utente.type(screen.getByRole('textbox', { name: 'Scorta minima' }), '5')
     await utente.click(screen.getByRole('button', { name: 'Crea prodotto' }))
 
     await waitFor(() => {
@@ -42,12 +42,38 @@ describe('CreareProdotto', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          codice: 'SKU-001', descrizione: 'Penna blu', valoreAcquisto: 1.5,
+          codice: 'SKU001', descrizione: 'Penna blu', valoreAcquisto: 1.5,
           valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false,
         }),
       })
     })
     expect(await screen.findByText('Prodotto creato con successo!')).toBeInTheDocument()
     expect(await screen.findByText('Elenco prodotti')).toBeInTheDocument()
+  }, 10_000)
+
+  it('mantiene soltanto cifre intere nei campi di quantità', async () => {
+    const utente = userEvent.setup()
+    renderizarTela()
+
+    const quantita = screen.getByRole('textbox', { name: 'Quantità' })
+    const scortaMinima = screen.getByRole('textbox', { name: 'Scorta minima' })
+    await utente.type(quantita, '12,5')
+    await utente.type(scortaMinima, '3.5')
+
+    expect(quantita).toHaveValue('125')
+    expect(scortaMinima).toHaveValue('35')
+  })
+
+  it('limita codice e descrizione alle dimensioni definite dal backend', async () => {
+    const utente = userEvent.setup()
+    renderizarTela()
+
+    const codice = screen.getByRole('textbox', { name: 'Codice' })
+    const descrizione = screen.getByRole('textbox', { name: 'Descrizione' })
+    await utente.type(codice, 'ABC1234')
+    await utente.type(descrizione, 'D'.repeat(31))
+
+    expect(codice).toHaveValue('ABC123')
+    expect(descrizione).toHaveValue('D'.repeat(30))
   })
 })
