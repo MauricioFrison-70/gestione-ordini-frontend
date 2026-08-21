@@ -28,7 +28,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useFeedback } from "../../../components/useFeedback";
-import { excluirAgente as excluirAgenteDaApi, listarAgentes } from "../../../services/agenteService";
+import {
+  AgenteUtilizzatoInOrdineError,
+  atualizarAgente,
+  excluirAgente as excluirAgenteDaApi,
+  listarAgentes,
+  verificareAgenteUtilizzato,
+} from "../../../services/agenteService";
 import type { Agente } from "../types/agente";
 
 type ColunaOrdenacao = keyof Pick<Agente, "id" | "nome" | "email" | "tipoAgente" | "archiviato">;
@@ -40,6 +46,8 @@ export default function Agentes() {
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [carregando, setCarregando] = useState(true);
   const [agenteParaExcluir, setAgenteParaExcluir] = useState<Agente | null>(null);
+  const [agenteParaArquivar, setAgenteParaArquivar] = useState<Agente | null>(null);
+  const [agenteInVerifica, setAgenteInVerifica] = useState<number | null>(null);
   const navigate = useNavigate();
   const { mostraMessaggio } = useFeedback();
 
@@ -67,10 +75,47 @@ export default function Agentes() {
       await excluirAgenteDaApi(agenteParaExcluir.id);
       setAgentes(await listarAgentes());
       mostraMessaggio("Agente eliminato con successo!", "success");
-    } catch {
-      mostraMessaggio("Errore nell’eliminazione dell’agente", "error");
+    } catch (errore) {
+      if (errore instanceof AgenteUtilizzatoInOrdineError) {
+        setAgenteParaArquivar(agenteParaExcluir);
+      } else {
+        mostraMessaggio("Errore nell’eliminazione dell’agente", "error");
+      }
     } finally {
       setAgenteParaExcluir(null);
+    }
+  };
+
+  const preparareEliminazione = async (agente: Agente) => {
+    setAgenteInVerifica(agente.id);
+    try {
+      if (await verificareAgenteUtilizzato(agente.id)) {
+        setAgenteParaArquivar(agente);
+      } else {
+        setAgenteParaExcluir(agente);
+      }
+    } catch {
+      mostraMessaggio("Errore nella verifica dell’utilizzo dell’agente", "error");
+    } finally {
+      setAgenteInVerifica(null);
+    }
+  };
+
+  const arquivarAgente = async () => {
+    if (!agenteParaArquivar) return;
+    try {
+      await atualizarAgente(agenteParaArquivar.id, {
+        nome: agenteParaArquivar.nome,
+        email: agenteParaArquivar.email,
+        tipoAgente: agenteParaArquivar.tipoAgente,
+        archiviato: true,
+      });
+      setAgentes(await listarAgentes());
+      mostraMessaggio("Agente archiviato con successo!", "success");
+    } catch {
+      mostraMessaggio("Errore nell’archiviazione dell’agente", "error");
+    } finally {
+      setAgenteParaArquivar(null);
     }
   };
 
@@ -147,7 +192,12 @@ export default function Agentes() {
                 <TableCell>
                   <IconButton color="info" onClick={() => navigate(`/agentes/detalhes/${agente.id}`)} title="Dettagli"><InfoOutlinedIcon /></IconButton>
                   <IconButton color="primary" onClick={() => navigate(`/agentes/editar/${agente.id}`)} title="Modifica"><EditIcon /></IconButton>
-                  <IconButton color="error" onClick={() => setAgenteParaExcluir(agente)} title="Elimina"><DeleteIcon /></IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => void preparareEliminazione(agente)}
+                    title="Elimina"
+                    disabled={agenteInVerifica === agente.id}
+                  ><DeleteIcon /></IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -170,6 +220,19 @@ export default function Agentes() {
         <DialogActions>
           <Button onClick={() => setAgenteParaExcluir(null)}>Annulla</Button>
           <Button color="error" variant="contained" onClick={confirmarExclusao}>Elimina</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={agenteParaArquivar !== null} onClose={() => setAgenteParaArquivar(null)}>
+        <DialogTitle>Agente utilizzato</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            L&apos;agente è utilizzato in uno o più ordini di vendita. Vuoi archiviarlo o annullare l&apos;eliminazione?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAgenteParaArquivar(null)}>Annulla eliminazione</Button>
+          <Button color="warning" variant="contained" onClick={arquivarAgente}>Archivia agente</Button>
         </DialogActions>
       </Dialog>
     </Box>

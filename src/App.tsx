@@ -14,6 +14,10 @@ import CreareProdotto from "./features/prodotti/pages/CreareProdotto";
 import ModificareProdotto from "./features/prodotti/pages/ModificareProdotto";
 import DettagliProdotto from "./features/prodotti/pages/DettagliProdotto";
 import EliminareProdotto from "./features/prodotti/pages/EliminareProdotto";
+import OrdiniVendita from "./features/ordiniVendita/pages/OrdiniVendita";
+import CreareOrdineVendita from "./features/ordiniVendita/pages/CreareOrdineVendita";
+import DettagliOrdineVendita from "./features/ordiniVendita/pages/DettagliOrdineVendita";
+import ModificareOrdineVendita from "./features/ordiniVendita/pages/ModificareOrdineVendita";
 
 const drawerWidth = 240;
 
@@ -49,6 +53,10 @@ function App() {
             <Route path="/prodotti/modificare/:id" element={<ModificareProdotto />} />
             <Route path="/prodotti/dettagli/:id" element={<DettagliProdotto />} />
             <Route path="/prodotti/eliminare" element={<EliminareProdotto />} />
+            <Route path="/ordini-vendita" element={<OrdiniVendita />} />
+            <Route path="/ordini-vendita/creare" element={<CreareOrdineVendita />} />
+            <Route path="/ordini-vendita/dettagli/:id" element={<DettagliOrdineVendita />} />
+            <Route path="/ordini-vendita/modificare/:id" element={<ModificareOrdineVendita />} />
         
           </Routes>
         </Box>
