@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FeedbackProvider } from '../../../components/FeedbackProvider'
 import ModificareProdotto from './ModificareProdotto'
 
-const prodotto = { id: 1, codice: 'SKU-001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' }
+const prodotto = { id: 1, codice: 'SKU001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' }
 
 function renderizarTela() {
   return render(
@@ -34,9 +34,11 @@ describe('ModificareProdotto', () => {
     vi.stubGlobal('fetch', fetchMock)
     renderizarTela()
 
-    const campoCodice = await screen.findByDisplayValue('SKU-001')
+    const campoCodice = await screen.findByDisplayValue('SKU001')
     expect(campoCodice).toBeDisabled()
+    expect(screen.getByDisplayValue('1,5')).toBeInTheDocument()
     const campoDescrizione = screen.getByDisplayValue('Penna blu')
+    expect(campoDescrizione).toHaveAttribute('maxlength', '30')
     await utente.clear(campoDescrizione)
     await utente.type(campoDescrizione, 'Penna nera')
     await utente.click(screen.getByRole('button', { name: 'Salva modifiche' }))

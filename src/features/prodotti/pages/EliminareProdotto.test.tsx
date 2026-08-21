@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FeedbackProvider } from '../../../components/FeedbackProvider'
 import EliminareProdotto from './EliminareProdotto'
 
-const prodotto = { id: 1, codice: 'SKU-001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' }
+const prodotto = { id: 1, codice: 'SKU001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' }
 
 describe('EliminareProdotto', () => {
   afterEach(() => {
@@ -22,7 +22,7 @@ describe('EliminareProdotto', () => {
 
     await utente.type(screen.getByRole('spinbutton', { name: 'ID del prodotto' }), '1')
     await utente.click(screen.getByRole('button', { name: 'Cerca' }))
-    expect(await screen.findByText('SKU-001')).toBeInTheDocument()
+    expect(await screen.findByText('SKU001')).toBeInTheDocument()
 
     await utente.click(screen.getByRole('button', { name: 'Elimina' }))
     await utente.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Elimina' }))

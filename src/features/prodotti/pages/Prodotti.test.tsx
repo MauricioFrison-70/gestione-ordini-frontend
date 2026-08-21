@@ -6,8 +6,8 @@ import { FeedbackProvider } from '../../../components/FeedbackProvider'
 import Prodotti from './Prodotti'
 
 const prodotti = [
-  { id: 1, codice: 'SKU-001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' },
-  { id: 2, codice: 'SKU-002', descrizione: 'Quaderno', valoreAcquisto: 2, valoreVendita: 4, quantita: 8, scortaMinima: 3, archiviato: true, dataRegistrazione: '2026-08-01T10:00:00' },
+  { id: 1, codice: 'SKU001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' },
+  { id: 2, codice: 'SKU002', descrizione: 'Quaderno', valoreAcquisto: 2, valoreVendita: 4, quantita: 8, scortaMinima: 3, archiviato: true, dataRegistrazione: '2026-08-01T10:00:00' },
 ]
 
 function renderizarTela() {

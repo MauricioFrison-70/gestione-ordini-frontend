@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FeedbackProvider } from '../../../components/FeedbackProvider'
 import DettagliProdotto from './DettagliProdotto'
 
-const prodotto = { id: 1, codice: 'SKU-001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' }
+const prodotto = { id: 1, codice: 'SKU001', descrizione: 'Penna blu', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false, dataRegistrazione: '2026-08-01T10:00:00' }
 
 describe('DettagliProdotto', () => {
   afterEach(() => {
@@ -23,7 +23,7 @@ describe('DettagliProdotto', () => {
     )
 
     expect(await screen.findByText('Penna blu')).toBeInTheDocument()
-    expect(screen.getByText('SKU-001')).toBeInTheDocument()
+    expect(screen.getByText('SKU001')).toBeInTheDocument()
     expect(screen.getByText('20')).toBeInTheDocument()
   })
 })
