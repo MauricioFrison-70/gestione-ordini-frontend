@@ -30,6 +30,7 @@ describe('ExcluirAgente', () => {
     const usuario = userEvent.setup()
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => agente })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ utilizzato: false }) })
       .mockResolvedValueOnce({ ok: true })
     vi.stubGlobal('fetch', fetchMock)
 
@@ -46,5 +47,35 @@ describe('ExcluirAgente', () => {
 
     expect(await screen.findByText('Agente eliminato con successo!')).toBeInTheDocument()
     expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:8081/api/agenti/1', { method: 'DELETE' })
+  })
+
+  it('consente di archiviare un agente utilizzato in un ordine', async () => {
+    const usuario = userEvent.setup()
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => agente })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ utilizzato: true }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ...agente, archiviato: true }) })
+    vi.stubGlobal('fetch', fetchMock)
+    renderizarTela()
+
+    await usuario.type(screen.getByRole('textbox'), '1')
+    await usuario.click(screen.getByRole('button', { name: 'Cerca' }))
+    await screen.findByText('Mario Rossi')
+    await usuario.click(screen.getByRole('button', { name: 'Elimina' }))
+
+    const dialogo = await screen.findByRole('dialog')
+    await usuario.click(within(dialogo).getByRole('button', { name: 'Archivia agente' }))
+
+    expect(await screen.findByText('Agente archiviato con successo!')).toBeInTheDocument()
+    expect(fetchMock).toHaveBeenLastCalledWith('http://localhost:8081/api/agenti/1', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: agente.nome,
+        email: agente.email,
+        tipoAgente: agente.tipoAgente,
+        archiviato: true,
+      }),
+    })
   })
 })

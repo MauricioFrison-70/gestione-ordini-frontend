@@ -6,6 +6,7 @@ import {
   excluirAgente,
   listarAgentes,
   listarTiposAgente,
+  verificareAgenteUtilizzato,
 } from './agenteService'
 import type { AgenteRequest } from '../features/agentes/types/agente'
 
@@ -87,6 +88,32 @@ describe('agenteService', () => {
 
     await expect(excluirAgente(1)).resolves.toBeUndefined()
     expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, { method: 'DELETE' })
+  })
+
+  it('identifica quando o agente è utilizzato in un ordine di vendita', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      status: 409,
+      json: async () => ({
+        codice: 'AGENTE_UTILIZZATO',
+        errore: "L'agente è utilizzato in uno o più ordini.",
+      }),
+    }))
+
+    await expect(excluirAgente(1)).rejects.toMatchObject({
+      name: 'AgenteUtilizzatoInOrdineError',
+    })
+  })
+
+  it('verifica preventivamente se o agente è utilizzato', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ utilizzato: true }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(verificareAgenteUtilizzato(1)).resolves.toBe(true)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1/utilizzo-ordini`)
   })
 
   it('informa falha quando a API recusa a criação', async () => {

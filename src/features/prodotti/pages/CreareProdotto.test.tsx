@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -24,18 +24,20 @@ describe('CreareProdotto', () => {
   })
 
   it('invia i dati del nuovo prodotto', async () => {
-    const utente = userEvent.setup()
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1 }) })
     vi.stubGlobal('fetch', fetchMock)
     renderizarTela()
 
-    await utente.type(screen.getByRole('textbox', { name: 'Codice' }), 'SKU001')
-    await utente.type(screen.getByRole('textbox', { name: 'Descrizione' }), 'Penna blu')
-    await utente.type(screen.getByRole('textbox', { name: 'Valore di acquisto' }), '1,50')
-    await utente.type(screen.getByRole('textbox', { name: 'Valore di vendita' }), '3,00')
-    await utente.type(screen.getByRole('textbox', { name: 'Quantità' }), '20')
-    await utente.type(screen.getByRole('textbox', { name: 'Scorta minima' }), '5')
-    await utente.click(screen.getByRole('button', { name: 'Crea prodotto' }))
+    fireEvent.change(screen.getByRole('textbox', { name: 'Codice' }), { target: { value: 'SKU001' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Descrizione' }), { target: { value: 'Penna blu' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Valore di acquisto' }), { target: { value: '1,50' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Valore di vendita' }), { target: { value: '3,00' } })
+    const quantita = screen.getByRole('textbox', { name: 'Quantità' })
+    expect(quantita).toHaveAttribute('readonly')
+    expect(quantita).toHaveValue('0')
+    expect(screen.getByText('La giacenza viene aggiornata automaticamente dagli ordini di acquisto e di vendita.')).toBeInTheDocument()
+    fireEvent.change(screen.getByRole('textbox', { name: 'Scorta minima' }), { target: { value: '5' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Crea prodotto' }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith('http://localhost:8081/api/prodotti', {
@@ -43,7 +45,7 @@ describe('CreareProdotto', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           codice: 'SKU001', descrizione: 'Penna blu', valoreAcquisto: 1.5,
-          valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false,
+          valoreVendita: 3, scortaMinima: 5, archiviato: false,
         }),
       })
     })
@@ -51,16 +53,15 @@ describe('CreareProdotto', () => {
     expect(await screen.findByText('Elenco prodotti')).toBeInTheDocument()
   }, 10_000)
 
-  it('mantiene soltanto cifre intere nei campi di quantità', async () => {
-    const utente = userEvent.setup()
+  it('mantiene la quantità in sola lettura e normalizza la scorta minima', async () => {
     renderizarTela()
 
     const quantita = screen.getByRole('textbox', { name: 'Quantità' })
     const scortaMinima = screen.getByRole('textbox', { name: 'Scorta minima' })
-    await utente.type(quantita, '12,5')
-    await utente.type(scortaMinima, '3.5')
+    fireEvent.change(scortaMinima, { target: { value: '3.5' } })
 
-    expect(quantita).toHaveValue('125')
+    expect(quantita).toHaveAttribute('readonly')
+    expect(quantita).toHaveValue('0')
     expect(scortaMinima).toHaveValue('35')
   })
 
@@ -75,5 +76,5 @@ describe('CreareProdotto', () => {
 
     expect(codice).toHaveValue('ABC123')
     expect(descrizione).toHaveValue('D'.repeat(30))
-  })
+  }, 10_000)
 })

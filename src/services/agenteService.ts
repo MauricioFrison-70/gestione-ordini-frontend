@@ -4,6 +4,13 @@ import type { Agente, AgenteRequest, TipoAgente } from '../features/agentes/type
 const URL_AGENTI = `${API_URL}/agenti`
 const URL_TIPI_AGENTE = `${API_URL}/tipo-agente`
 
+export class AgenteUtilizzatoInOrdineError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'AgenteUtilizzatoInOrdineError'
+  }
+}
+
 async function eseguireRichiesta<T>(
   url: string,
   messaggioErrore: string,
@@ -50,6 +57,20 @@ export async function excluirAgente(id: number): Promise<void> {
   const response = await fetch(`${URL_AGENTI}/${id}`, { method: 'DELETE' })
 
   if (!response.ok) {
+    const corpo = await response.json().catch(() => null) as { codice?: string, errore?: string } | null
+    if (response.status === 409 && corpo?.codice === 'AGENTE_UTILIZZATO') {
+      throw new AgenteUtilizzatoInOrdineError(
+        corpo.errore || "L'agente è utilizzato in uno o più ordini.",
+      )
+    }
     throw new Error('Errore nell’eliminazione dell’agente')
   }
+}
+
+export async function verificareAgenteUtilizzato(id: number): Promise<boolean> {
+  const risposta = await eseguireRichiesta<{ utilizzato: boolean }>(
+    `${URL_AGENTI}/${id}/utilizzo-ordini`,
+    "Errore nella verifica dell'utilizzo dell'agente",
+  )
+  return risposta.utilizzato
 }

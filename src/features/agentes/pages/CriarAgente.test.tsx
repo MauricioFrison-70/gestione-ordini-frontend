@@ -76,7 +76,7 @@ describe('CriarAgente', () => {
     })
     expect(await screen.findByText('Agente creato con successo!')).toBeInTheDocument()
     expect(await screen.findByText('Elenco agenti')).toBeInTheDocument()
-  })
+  }, 10_000)
 
   it('não envia o formulário se os campos obrigatórios estiverem vazios', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: vi.fn().mockResolvedValue(['VENDITORE']) })

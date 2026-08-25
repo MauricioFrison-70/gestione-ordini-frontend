@@ -20,6 +20,10 @@ export function accettareInputIntero(valore: string): boolean {
   return /^\d*$/.test(valore)
 }
 
+export function normalizzareInputIntero(valore: string): string {
+  return valore.replace(/\D/g, '')
+}
+
 export function interoValido(valore: string): boolean {
   return /^\d+$/.test(valore)
 }

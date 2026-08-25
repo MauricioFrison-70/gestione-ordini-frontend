@@ -15,7 +15,6 @@ export interface ProdottoRequest {
   descrizione: string
   valoreAcquisto: number
   valoreVendita: number
-  quantita: number
   scortaMinima: number
   archiviato: boolean
 }

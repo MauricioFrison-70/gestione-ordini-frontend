@@ -59,6 +59,7 @@ describe('Agentes', () => {
   it('exclui o agente após a confirmação do usuário', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => agentes })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ utilizzato: false }) })
       .mockResolvedValueOnce({ ok: true })
       .mockResolvedValueOnce({ ok: true, json: async () => agentes.filter((agente) => agente.id !== 1) })
     vi.stubGlobal('fetch', fetchMock)
@@ -68,10 +69,41 @@ describe('Agentes', () => {
     const linhaDoMario = nomeDoMario.closest('tr')
     expect(linhaDoMario).not.toBeNull()
     await userEvent.click(within(linhaDoMario!).getByTitle('Elimina'))
+    await screen.findByText(/Vuoi eliminare l'agente Mario Rossi/i)
     await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Elimina' }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, { method: 'DELETE' })
     })
+  })
+
+  it('oferece arquivamento quando o agente è utilizado em um ordine di vendita', async () => {
+    const agentesArquivados = [{ ...agentes[0], archiviato: true }, agentes[1]]
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => agentes })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ utilizzato: true }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => agentesArquivados[0] })
+      .mockResolvedValueOnce({ ok: true, json: async () => agentesArquivados })
+    vi.stubGlobal('fetch', fetchMock)
+    renderizarTela()
+
+    const linha = (await screen.findByText('Mario Rossi')).closest('tr')
+    await userEvent.click(within(linha!).getByTitle('Elimina'))
+
+    const dialogo = await screen.findByRole('dialog')
+    expect(within(dialogo).getByText(/utilizzato in uno o più ordini/i)).toBeInTheDocument()
+    await userEvent.click(within(dialogo).getByRole('button', { name: 'Archivia agente' }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: 'Mario Rossi',
+        email: 'mario.rossi@example.com',
+        tipoAgente: 'VENDITORE',
+        archiviato: true,
+      }),
+    }))
+    expect(await screen.findByText('Agente archiviato con successo!')).toBeInTheDocument()
   })
 })

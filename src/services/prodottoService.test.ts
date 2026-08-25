@@ -15,9 +15,15 @@ const nuovoProdotto: ProdottoRequest = {
   descrizione: 'Penna blu',
   valoreAcquisto: 1.5,
   valoreVendita: 3,
-  quantita: 20,
   scortaMinima: 5,
   archiviato: false,
+}
+
+const prodotto = {
+  id: 1,
+  ...nuovoProdotto,
+  quantita: 20,
+  dataRegistrazione: '2026-08-01T10:00:00',
 }
 
 describe('prodottoService', () => {
@@ -26,7 +32,7 @@ describe('prodottoService', () => {
   })
 
   it('elenca i prodotti ricevuti dalla API', async () => {
-    const prodotti = [{ id: 1, ...nuovoProdotto }]
+    const prodotti = [prodotto]
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => prodotti })
     vi.stubGlobal('fetch', fetchMock)
 
@@ -35,18 +41,18 @@ describe('prodottoService', () => {
   })
 
   it('cerca un prodotto per identificatore', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1, ...nuovoProdotto }) })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => prodotto })
     vi.stubGlobal('fetch', fetchMock)
 
-    await expect(cercareProdottoPerId(1)).resolves.toEqual({ id: 1, ...nuovoProdotto })
+    await expect(cercareProdottoPerId(1)).resolves.toEqual(prodotto)
     expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`)
   })
 
   it('crea un prodotto inviando tutti i dati richiesti', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1, ...nuovoProdotto }) })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => prodotto })
     vi.stubGlobal('fetch', fetchMock)
 
-    await expect(creareProdotto(nuovoProdotto)).resolves.toEqual({ id: 1, ...nuovoProdotto })
+    await expect(creareProdotto(nuovoProdotto)).resolves.toEqual(prodotto)
     expect(fetchMock).toHaveBeenCalledWith(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -59,14 +65,14 @@ describe('prodottoService', () => {
       descrizione: 'Penna nera',
       valoreAcquisto: 1.6,
       valoreVendita: 3.2,
-      quantita: 18,
       scortaMinima: 4,
       archiviato: false,
     }
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1, codice: 'SKU001', ...aggiornamento }) })
+    const aggiornato = { ...prodotto, ...aggiornamento }
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => aggiornato })
     vi.stubGlobal('fetch', fetchMock)
 
-    await expect(aggiornareProdotto(1, aggiornamento)).resolves.toEqual({ id: 1, codice: 'SKU001', ...aggiornamento })
+    await expect(aggiornareProdotto(1, aggiornamento)).resolves.toEqual(aggiornato)
     expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
