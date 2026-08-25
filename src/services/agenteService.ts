@@ -60,7 +60,7 @@ export async function excluirAgente(id: number): Promise<void> {
     const corpo = await response.json().catch(() => null) as { codice?: string, errore?: string } | null
     if (response.status === 409 && corpo?.codice === 'AGENTE_UTILIZZATO') {
       throw new AgenteUtilizzatoInOrdineError(
-        corpo.errore || "L'agente è utilizzato in uno o più ordini di vendita.",
+        corpo.errore || "L'agente è utilizzato in uno o più ordini.",
       )
     }
     throw new Error('Errore nell’eliminazione dell’agente')

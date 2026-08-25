@@ -65,6 +65,22 @@ export function aggiornareOrdineVendita(
   )
 }
 
+export function rilasciareOrdineVendita(id: number): Promise<OrdineVendita> {
+  return eseguireRichiesta(
+    `${URL_ORDINI_VENDITA}/${id}/rilasciare`,
+    "Errore nel rilascio dell'ordine di vendita",
+    { method: 'POST' },
+  )
+}
+
+export function annullareOrdineVendita(id: number): Promise<OrdineVendita> {
+  return eseguireRichiesta(
+    `${URL_ORDINI_VENDITA}/${id}/annullare`,
+    "Errore nell'annullamento dell'ordine di vendita",
+    { method: 'POST' },
+  )
+}
+
 export async function eliminareOrdineVendita(id: number): Promise<void> {
   const response = await eseguireFetch(`${URL_ORDINI_VENDITA}/${id}`, { method: 'DELETE' })
   if (!response.ok) {

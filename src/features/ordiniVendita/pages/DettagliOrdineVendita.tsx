@@ -41,10 +41,14 @@ export default function DettagliOrdineVendita() {
         <Typography sx={{ mb: 1 }}><strong>Trasportatore:</strong> {ordine.trasportatore.nome}</Typography>
         <Typography sx={{ mb: 1 }}><strong>Data registrazione:</strong> {formattareData(ordine.dataRegistrazione, true)}</Typography>
         <Typography sx={{ mb: 1 }}><strong>Data rilascio:</strong> {formattareData(ordine.dataRilascio)}</Typography>
+        <Typography sx={{ mb: 1 }}><strong>Data annullamento:</strong> {formattareData(ordine.dataAnnullamento)}</Typography>
         <Divider sx={{ my: 3 }} />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
           <Button variant="outlined" onClick={() => navigate('/ordini-vendita')}>Indietro</Button>
-          <Button variant="contained" onClick={() => navigate(`/ordini-vendita/modificare/${ordine.id}`)}>Modifica</Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button variant="outlined" onClick={() => navigate(`/ordini-vendita/${ordine.id}/righe`)}>Righe ordine</Button>
+            <Button variant="contained" onClick={() => navigate(`/ordini-vendita/modificare/${ordine.id}`)}>Modifica</Button>
+          </Box>
         </Box>
       </Paper>
     </Box>

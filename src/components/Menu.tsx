@@ -38,6 +38,10 @@ export default function Menu() {
         <ListItemButton onClick={() => navigate("/ordini-vendita")}>
           <ListItemText primary="Ordini di vendita" />
         </ListItemButton>
+
+        <ListItemButton onClick={() => navigate("/ordini-acquisto")}>
+          <ListItemText primary="Ordini di acquisto" />
+        </ListItemButton>
         
       </List>
     </Drawer>

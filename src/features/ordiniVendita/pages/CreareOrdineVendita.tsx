@@ -77,14 +77,13 @@ export default function CreareOrdineVendita() {
     event.preventDefault()
     setSalvando(true)
     try {
-      await creareOrdineVendita({
+      const ordineCreato = await creareOrdineVendita({
         clienteId: Number(clienteId),
         venditoreId: Number(venditoreId),
         trasportatoreId: Number(trasportatoreId),
-        dataRilascio: null,
       })
       mostraMessaggio('Ordine di vendita creato con successo!', 'success')
-      navigate('/ordini-vendita')
+      navigate(`/ordini-vendita/${ordineCreato.id}/righe`)
     } catch (errore) {
       mostraMessaggio(
         errore instanceof Error ? errore.message : "Errore nella creazione dell'ordine di vendita",

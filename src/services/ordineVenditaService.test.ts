@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   aggiornareOrdineVendita,
+  annullareOrdineVendita,
   cercareOrdineVenditaPerId,
   creareOrdineVendita,
   elencareOrdiniVendita,
   eliminareOrdineVendita,
+  rilasciareOrdineVendita,
 } from './ordineVenditaService'
 import type { OrdineVenditaRequest } from '../features/ordiniVendita/types/ordineVendita'
 
@@ -13,7 +15,6 @@ const request: OrdineVenditaRequest = {
   clienteId: 1,
   venditoreId: 2,
   trasportatoreId: 3,
-  dataRilascio: null,
 }
 
 describe('ordineVenditaService', () => {
@@ -72,6 +73,20 @@ describe('ordineVenditaService', () => {
     vi.stubGlobal('fetch', fetchMock)
     await expect(eliminareOrdineVendita(1)).resolves.toBeUndefined()
     expect(fetchMock).toHaveBeenCalledWith(`${URL}/1`, { method: 'DELETE' })
+  })
+
+  it('rilascia un ordine', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1 }) })
+    vi.stubGlobal('fetch', fetchMock)
+    await rilasciareOrdineVendita(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${URL}/1/rilasciare`, { method: 'POST' })
+  })
+
+  it('annulla un ordine', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 1 }) })
+    vi.stubGlobal('fetch', fetchMock)
+    await annullareOrdineVendita(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${URL}/1/annullare`, { method: 'POST' })
   })
 
   it('informa quando um ordine rilasciato non pode ser eliminado', async () => {

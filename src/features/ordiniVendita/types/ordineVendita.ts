@@ -11,11 +11,11 @@ export interface OrdineVendita {
   trasportatore: AgenteRiferimento
   dataRegistrazione: string
   dataRilascio: string | null
+  dataAnnullamento: string | null
 }
 
 export interface OrdineVenditaRequest {
   clienteId: number
   venditoreId: number
   trasportatoreId: number
-  dataRilascio: string | null
 }

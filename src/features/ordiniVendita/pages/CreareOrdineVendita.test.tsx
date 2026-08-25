@@ -20,6 +20,7 @@ function renderizzare() {
         <Routes>
           <Route path="/ordini-vendita/creare" element={<CreareOrdineVendita />} />
           <Route path="/ordini-vendita" element={<p>Elenco ordini</p>} />
+          <Route path="/ordini-vendita/:ordineId/righe" element={<p>Inclusione righe ordine</p>} />
         </Routes>
       </MemoryRouter>
     </FeedbackProvider>,
@@ -48,7 +49,7 @@ describe('CreareOrdineVendita', () => {
     expect(within(trasportatore).getByRole('option', { name: 'Trasportatore Uno' })).toBeInTheDocument()
   })
 
-  it('crea un ordine sem solicitar a data de rilascio', async () => {
+  it('crea un ordine e apre direttamente la pagina di inserimento delle righe', async () => {
     const user = userEvent.setup()
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: async () => agenti })
@@ -66,10 +67,14 @@ describe('CreareOrdineVendita', () => {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clienteId: 1, venditoreId: 2, trasportatoreId: 3, dataRilascio: null }),
+        body: JSON.stringify({
+          clienteId: 1,
+          venditoreId: 2,
+          trasportatoreId: 3,
+        }),
       },
     ))
     expect(await screen.findByText('Ordine di vendita creato con successo!')).toBeInTheDocument()
-    expect(await screen.findByText('Elenco ordini')).toBeInTheDocument()
+    expect(await screen.findByText('Inclusione righe ordine')).toBeInTheDocument()
   })
 })

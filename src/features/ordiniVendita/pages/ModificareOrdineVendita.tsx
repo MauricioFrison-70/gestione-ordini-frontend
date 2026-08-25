@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -76,17 +77,17 @@ export default function ModificareOrdineVendita() {
   const clienti = useMemo(() => filtrarAgenti(agenti, 'CLIENTE', ordine?.cliente.id), [agenti, ordine])
   const venditori = useMemo(() => filtrarAgenti(agenti, 'VENDITORE', ordine?.venditore.id), [agenti, ordine])
   const trasportatori = useMemo(() => filtrarAgenti(agenti, 'TRASPORTATORE', ordine?.trasportatore.id), [agenti, ordine])
+  const ordineBloccato = Boolean(ordine?.dataRilascio || ordine?.dataAnnullamento)
 
   const salvare = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (!id) return
+    if (!id || !ordine) return
     setSalvando(true)
     try {
       await aggiornareOrdineVendita(Number(id), {
         clienteId: Number(clienteId),
         venditoreId: Number(venditoreId),
         trasportatoreId: Number(trasportatoreId),
-        dataRilascio: ordine.dataRilascio,
       })
       mostraMessaggio('Ordine di vendita aggiornato con successo!', 'success')
       navigate('/ordini-vendita')
@@ -108,19 +109,44 @@ export default function ModificareOrdineVendita() {
           <Typography variant="h4">Modifica ordine di vendita</Typography>
         </Box>
         <Box component="form" onSubmit={salvare} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <TextField label="Numero ordine" value={ordine.numeroOrdine} disabled />
-            <TextField label="Data registrazione" value={new Date(ordine.dataRegistrazione).toLocaleString('it-IT')} disabled />
-          </Box>
-          <Selettore id="cliente" etichetta="Cliente" valore={clienteId} agenti={clienti} onChange={setClienteId} />
-          <Selettore id="venditore" etichetta="Venditore" valore={venditoreId} agenti={venditori} onChange={setVenditoreId} />
-          <Selettore id="trasportatore" etichetta="Trasportatore" valore={trasportatoreId} agenti={trasportatori} onChange={setTrasportatoreId} />
-          <TextField label="Data rilascio" type="date" value={ordine.dataRilascio || ''}
-            slotProps={{ input: { readOnly: true }, inputLabel: { shrink: true } }}
-            helperText="La data di rilascio è gestita dal sistema e non può essere modificata qui." />
-          <Button type="submit" variant="contained" disabled={salvando}>
-            {salvando ? 'Salvataggio...' : 'Salva modifiche'}
-          </Button>
+          <Paper component="section" variant="outlined" aria-labelledby="dati-non-modificabili" sx={{ p: 3 }}>
+            <Typography id="dati-non-modificabili" variant="h6" sx={{ mb: 2.5 }}>
+              Dati non modificabili
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <TextField label="Numero ordine" value={ordine.numeroOrdine} disabled />
+              <TextField label="Data registrazione" value={new Date(ordine.dataRegistrazione).toLocaleString('it-IT')} disabled />
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mt: 2 }}>
+              <TextField label="Data rilascio" type="date" value={ordine.dataRilascio || ''}
+                slotProps={{ input: { readOnly: true }, inputLabel: { shrink: true } }} />
+              <TextField label="Data annullamento" type="date" value={ordine.dataAnnullamento || ''}
+                slotProps={{ input: { readOnly: true }, inputLabel: { shrink: true } }} />
+            </Box>
+          </Paper>
+
+          {ordineBloccato ? (
+            <Alert severity="info">
+              L&apos;ordine è {ordine.dataRilascio ? 'già stato rilasciato' : 'già stato annullato'}
+              e non può più essere modificato.
+            </Alert>
+          ) : (
+            <>
+              <Paper component="section" variant="outlined" aria-labelledby="dati-modificabili" sx={{ p: 3 }}>
+                <Typography id="dati-modificabili" variant="h6" sx={{ mb: 2.5 }}>
+                  Dati modificabili
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                  <Selettore id="cliente" etichetta="Cliente" valore={clienteId} agenti={clienti} onChange={setClienteId} />
+                  <Selettore id="venditore" etichetta="Venditore" valore={venditoreId} agenti={venditori} onChange={setVenditoreId} />
+                  <Selettore id="trasportatore" etichetta="Trasportatore" valore={trasportatoreId} agenti={trasportatori} onChange={setTrasportatoreId} />
+                </Box>
+              </Paper>
+              <Button type="submit" variant="contained" disabled={salvando}>
+                {salvando ? 'Salvataggio...' : 'Salva modifiche'}
+              </Button>
+            </>
+          )}
         </Box>
       </Paper>
     </Box>

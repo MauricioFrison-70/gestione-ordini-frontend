@@ -227,7 +227,7 @@ export default function Agentes() {
         <DialogTitle>Agente utilizzato</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            L&apos;agente è utilizzato in uno o più ordini di vendita. Vuoi archiviarlo o annullare l&apos;eliminazione?
+            L&apos;agente è utilizzato in uno o più ordini. Vuoi archiviarlo o annullare l&apos;eliminazione?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

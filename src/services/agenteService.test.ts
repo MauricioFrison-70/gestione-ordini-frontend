@@ -96,7 +96,7 @@ describe('agenteService', () => {
       status: 409,
       json: async () => ({
         codice: 'AGENTE_UTILIZZATO',
-        errore: "L'agente è utilizzato in uno o più ordini di vendita.",
+        errore: "L'agente è utilizzato in uno o più ordini.",
       }),
     }))
 

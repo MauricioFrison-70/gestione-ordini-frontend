@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FeedbackProvider } from '../../../components/FeedbackProvider'
@@ -25,8 +24,7 @@ describe('ModificareProdotto', () => {
     vi.unstubAllGlobals()
   })
 
-  it('mantiene il codice immutabile e invia gli altri dati aggiornati', async () => {
-    const utente = userEvent.setup()
+  it('mantiene codice e giacenza immutabili e invia gli altri dati aggiornati', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       if (init?.method === 'PUT') return { ok: true, json: async () => prodotto }
       return { ok: true, json: async () => prodotto }
@@ -36,17 +34,18 @@ describe('ModificareProdotto', () => {
 
     const campoCodice = await screen.findByDisplayValue('SKU001')
     expect(campoCodice).toBeDisabled()
+    expect(screen.getByRole('textbox', { name: 'Quantità' })).toHaveAttribute('readonly')
+    expect(screen.getByText('La giacenza viene aggiornata automaticamente dagli ordini di acquisto e di vendita.')).toBeInTheDocument()
     expect(screen.getByDisplayValue('1,5')).toBeInTheDocument()
     const campoDescrizione = screen.getByDisplayValue('Penna blu')
     expect(campoDescrizione).toHaveAttribute('maxlength', '30')
-    await utente.clear(campoDescrizione)
-    await utente.type(campoDescrizione, 'Penna nera')
-    await utente.click(screen.getByRole('button', { name: 'Salva modifiche' }))
+    fireEvent.change(campoDescrizione, { target: { value: 'Penna nera' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Salva modifiche' }))
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('http://localhost:8081/api/prodotti/1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ descrizione: 'Penna nera', valoreAcquisto: 1.5, valoreVendita: 3, quantita: 20, scortaMinima: 5, archiviato: false }),
+      body: JSON.stringify({ descrizione: 'Penna nera', valoreAcquisto: 1.5, valoreVendita: 3, scortaMinima: 5, archiviato: false }),
     }))
     expect(await screen.findByText('Prodotto aggiornato con successo!')).toBeInTheDocument()
   })

@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
-import { Box, Button, Checkbox, CircularProgress, FormControlLabel, IconButton, Paper, TextField, Typography } from '@mui/material'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import { Box, Button, Checkbox, CircularProgress, FormControlLabel, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material'
 import { useFeedback } from '../../../components/useFeedback'
 import { aggiornareProdotto, cercareProdottoPerId } from '../../../services/prodottoService'
 import {
   accettareInputDecimale,
-  accettareInputIntero,
   convertireDecimale,
   decimaleValido,
   formattareDecimale,
   interoValido,
+  normalizzareInputIntero,
 } from '../utils/numeri'
 
-const messaggioFormatoNonValido = 'Inserisci importi con la virgola e al massimo due cifre decimali. Quantità e scorta minima devono essere numeri interi.'
+const messaggioFormatoNonValido = 'Inserisci importi con la virgola e al massimo due cifre decimali. La scorta minima deve essere un numero intero.'
 
 export default function ModificareProdotto() {
   const { id } = useParams()
@@ -50,7 +51,7 @@ export default function ModificareProdotto() {
     event.preventDefault()
     if (!id) return
 
-    if (!decimaleValido(valoreAcquisto) || !decimaleValido(valoreVendita) || !interoValido(quantita) || !interoValido(scortaMinima)) {
+    if (!decimaleValido(valoreAcquisto) || !decimaleValido(valoreVendita) || !interoValido(scortaMinima)) {
       mostraMessaggio(messaggioFormatoNonValido, 'error')
       return
     }
@@ -61,7 +62,6 @@ export default function ModificareProdotto() {
         descrizione,
         valoreAcquisto: convertireDecimale(valoreAcquisto),
         valoreVendita: convertireDecimale(valoreVendita),
-        quantita: Number(quantita),
         scortaMinima: Number(scortaMinima),
         archiviato,
       })
@@ -86,7 +86,27 @@ export default function ModificareProdotto() {
           <Typography variant="h4">Modifica prodotto</Typography>
         </Box>
         <Box component="form" onSubmit={salvare} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField label="Codice" value={codice} disabled fullWidth helperText="Il codice non può essere modificato." />
+          <TextField
+            label="Codice"
+            value={codice}
+            disabled
+            fullWidth
+            helperText="Il codice non può essere modificato."
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <LockOutlinedIcon color="primary" fontSize="small" titleAccess="Campo non modificabile" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': { bgcolor: 'rgba(25, 118, 210, 0.07)' },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.light' },
+              '& .MuiInputLabel-root': { color: 'primary.main' },
+            }}
+          />
           <TextField
             label="Descrizione"
             value={descrizione}
@@ -117,16 +137,29 @@ export default function ModificareProdotto() {
           <TextField
             label="Quantità"
             value={quantita}
-            onChange={(event) => accettareInputIntero(event.target.value) && setQuantita(event.target.value)}
-            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
-            helperText="Sono ammessi solo numeri interi."
+            slotProps={{
+              htmlInput: { readOnly: true },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <LockOutlinedIcon color="primary" fontSize="small" titleAccess="Campo non modificabile" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            helperText="La giacenza viene aggiornata automaticamente dagli ordini di acquisto e di vendita."
+            sx={{
+              '& .MuiOutlinedInput-root': { bgcolor: 'rgba(25, 118, 210, 0.07)' },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.light' },
+              '& .MuiInputLabel-root': { color: 'primary.main' },
+            }}
             required
             fullWidth
           />
           <TextField
             label="Scorta minima"
             value={scortaMinima}
-            onChange={(event) => accettareInputIntero(event.target.value) && setScortaMinima(event.target.value)}
+            onChange={(event) => setScortaMinima(normalizzareInputIntero(event.target.value))}
             slotProps={{ htmlInput: { inputMode: 'numeric' } }}
             helperText="Sono ammessi solo numeri interi."
             required

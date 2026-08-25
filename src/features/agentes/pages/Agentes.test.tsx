@@ -91,7 +91,7 @@ describe('Agentes', () => {
     await userEvent.click(within(linha!).getByTitle('Elimina'))
 
     const dialogo = await screen.findByRole('dialog')
-    expect(within(dialogo).getByText(/utilizzato in uno o più ordini di vendita/i)).toBeInTheDocument()
+    expect(within(dialogo).getByText(/utilizzato in uno o più ordini/i)).toBeInTheDocument()
     await userEvent.click(within(dialogo).getByRole('button', { name: 'Archivia agente' }))
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(`${API_URL}/1`, {

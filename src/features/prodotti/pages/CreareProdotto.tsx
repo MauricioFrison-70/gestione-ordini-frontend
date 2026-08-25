@@ -1,18 +1,19 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
-import { Box, Button, IconButton, Paper, TextField, Typography } from '@mui/material'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import { Box, Button, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material'
 import { useFeedback } from '../../../components/useFeedback'
 import { creareProdotto } from '../../../services/prodottoService'
 import {
   accettareInputDecimale,
-  accettareInputIntero,
   convertireDecimale,
   decimaleValido,
   interoValido,
+  normalizzareInputIntero,
 } from '../utils/numeri'
 
-const messaggioFormatoNonValido = 'Inserisci importi con la virgola e al massimo due cifre decimali. Quantità e scorta minima devono essere numeri interi.'
+const messaggioFormatoNonValido = 'Inserisci importi con la virgola e al massimo due cifre decimali. La scorta minima deve essere un numero intero.'
 
 export default function CreareProdotto() {
   const navigate = useNavigate()
@@ -21,14 +22,14 @@ export default function CreareProdotto() {
   const [descrizione, setDescrizione] = useState('')
   const [valoreAcquisto, setValoreAcquisto] = useState('')
   const [valoreVendita, setValoreVendita] = useState('')
-  const [quantita, setQuantita] = useState('')
+  const quantita = '0'
   const [scortaMinima, setScortaMinima] = useState('')
   const [salvando, setSalvando] = useState(false)
 
   const salvare = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!decimaleValido(valoreAcquisto) || !decimaleValido(valoreVendita) || !interoValido(quantita) || !interoValido(scortaMinima)) {
+    if (!decimaleValido(valoreAcquisto) || !decimaleValido(valoreVendita) || !interoValido(scortaMinima)) {
       mostraMessaggio(messaggioFormatoNonValido, 'error')
       return
     }
@@ -40,7 +41,6 @@ export default function CreareProdotto() {
         descrizione,
         valoreAcquisto: convertireDecimale(valoreAcquisto),
         valoreVendita: convertireDecimale(valoreVendita),
-        quantita: Number(quantita),
         scortaMinima: Number(scortaMinima),
         archiviato: false,
       })
@@ -101,16 +101,29 @@ export default function CreareProdotto() {
           <TextField
             label="Quantità"
             value={quantita}
-            onChange={(event) => accettareInputIntero(event.target.value) && setQuantita(event.target.value)}
-            slotProps={{ htmlInput: { inputMode: 'numeric' } }}
-            helperText="Sono ammessi solo numeri interi."
+            slotProps={{
+              htmlInput: { readOnly: true },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <LockOutlinedIcon color="primary" fontSize="small" titleAccess="Campo non modificabile" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            helperText="La giacenza viene aggiornata automaticamente dagli ordini di acquisto e di vendita."
+            sx={{
+              '& .MuiOutlinedInput-root': { bgcolor: 'rgba(25, 118, 210, 0.07)' },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.light' },
+              '& .MuiInputLabel-root': { color: 'primary.main' },
+            }}
             required
             fullWidth
           />
           <TextField
             label="Scorta minima"
             value={scortaMinima}
-            onChange={(event) => accettareInputIntero(event.target.value) && setScortaMinima(event.target.value)}
+            onChange={(event) => setScortaMinima(normalizzareInputIntero(event.target.value))}
             slotProps={{ htmlInput: { inputMode: 'numeric' } }}
             helperText="Sono ammessi solo numeri interi."
             required
