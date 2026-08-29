@@ -22,8 +22,7 @@ import RigheOrdineVendita from "./features/ordiniVendita/pages/RigheOrdineVendit
 import OrdiniAcquisto from "./features/ordiniAcquisto/pages/OrdiniAcquisto";
 import CreareOrdineAcquisto from "./features/ordiniAcquisto/pages/CreareOrdineAcquisto";
 import RigheOrdineAcquisto from "./features/ordiniAcquisto/pages/RigheOrdineAcquisto";
-
-const drawerWidth = 240;
+import Rapporti from "./features/rapporti/pages/Rapporti";
 
 function App() {
   return (
@@ -37,7 +36,6 @@ function App() {
           sx={{
             flexGrow: 1,
             p: 4,
-            ml: `${drawerWidth}px`,
             backgroundColor: "background.default",
             minHeight: "100vh",
           }}
@@ -65,6 +63,7 @@ function App() {
             <Route path="/ordini-acquisto" element={<OrdiniAcquisto />} />
             <Route path="/ordini-acquisto/creare" element={<CreareOrdineAcquisto />} />
             <Route path="/ordini-acquisto/:ordineId/righe" element={<RigheOrdineAcquisto />} />
+            <Route path="/rapporti" element={<Rapporti />} />
         
           </Routes>
         </Box>
