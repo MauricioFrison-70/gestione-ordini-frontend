@@ -7,7 +7,7 @@ import Agentes from "./features/agentes/pages/Agentes";
 import CriarAgente from "./features/agentes/pages/CriarAgente";
 import EditarAgente from "./features/agentes/pages/EditarAgente";
 import ExcluirAgente from "./features/agentes/pages/ExcluirAgente";
-import Dashboard from "./features/agentes/pages/Dashboard";
+import Dashboard from "./features/dashboard/pages/Dashboard";
 import DettagliAgente from "./features/agentes/pages/DettagliAgente";
 import Prodotti from "./features/prodotti/pages/Prodotti";
 import CreareProdotto from "./features/prodotti/pages/CreareProdotto";
