@@ -9,7 +9,11 @@ import {
 
 const dipendenze = vi.hoisted(() => {
   const toFile = vi.fn().mockResolvedValue(undefined)
-  const writeExcelFile = vi.fn((_dati: unknown, _opzioni?: unknown) => ({ toFile }))
+  const writeExcelFile = vi.fn((dati: unknown, opzioni?: unknown) => {
+    void dati
+    void opzioni
+    return { toFile }
+  })
   const documento = {
     setFont: vi.fn(),
     setFontSize: vi.fn(),

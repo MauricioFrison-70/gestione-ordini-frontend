@@ -6,10 +6,8 @@ import {
   Alert,
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   FormControl,
-  FormControlLabel,
   IconButton,
   InputLabel,
   MenuItem,
@@ -21,7 +19,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
@@ -34,17 +31,16 @@ import {
 import type {
   ColonnaRapporto,
   OpzioneParametro,
-  ParametroRapporto,
   Rapporto,
   RisultatoRapporto,
 } from '../types/rapporto'
+import CampoParametro from '../components/CampoParametro'
+import type { ValoreParametro } from '../components/CampoParametro'
 import {
   esportareRapportoExcel,
   esportareRapportoPdf,
   mostraValoreRapporto,
 } from '../utils/esportazioneRapporto'
-
-type ValoreParametro = string | boolean
 
 function indiceEtichettaTotali(colonne: ColonnaRapporto[]): number {
   const primaColonnaTotalizzata = colonne.findIndex((colonna) => colonna.totalizzare)
@@ -59,69 +55,6 @@ function valoriIniziali(rapporto: Rapporto): Record<string, ValoreParametro> {
       ? parametro.valorePredefinito?.toLowerCase() === 'true'
       : parametro.valorePredefinito ?? '',
   ]))
-}
-
-function CampoParametro({
-  parametro,
-  valore,
-  opzioni,
-  onChange,
-}: {
-  parametro: ParametroRapporto
-  valore: ValoreParametro
-  opzioni: OpzioneParametro[]
-  onChange: (valore: ValoreParametro) => void
-}) {
-  if (parametro.tipo === 'BOOLEANO') {
-    return (
-      <FormControlLabel
-        control={<Checkbox checked={Boolean(valore)} onChange={(event) => onChange(event.target.checked)} />}
-        label={parametro.etichetta}
-      />
-    )
-  }
-
-  if (parametro.tipo === 'SELEZIONE') {
-    return (
-      <FormControl fullWidth required={parametro.obbligatorio}>
-        <InputLabel id={`parametro-${parametro.nome}`}>{parametro.etichetta}</InputLabel>
-        <Select
-          labelId={`parametro-${parametro.nome}`}
-          label={parametro.etichetta}
-          value={valore}
-          onChange={(event) => onChange(String(event.target.value))}
-        >
-          {!parametro.obbligatorio && <MenuItem value="">Tutti</MenuItem>}
-          {opzioni.map((opzione) => (
-            <MenuItem key={String(opzione.valore)} value={String(opzione.valore)}>
-              {opzione.etichetta}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    )
-  }
-
-  const tipoInput = parametro.tipo === 'DATA'
-    ? 'date'
-    : parametro.tipo === 'INTERO' || parametro.tipo === 'DECIMALE' ? 'number' : 'text'
-  return (
-    <TextField
-      fullWidth
-      required={parametro.obbligatorio}
-      label={parametro.etichetta}
-      type={tipoInput}
-      value={valore}
-      onChange={(event) => onChange(event.target.value)}
-      slotProps={{
-        inputLabel: tipoInput === 'date' ? { shrink: true } : undefined,
-        htmlInput: parametro.tipo === 'INTERO'
-          ? { step: 1 }
-          : parametro.tipo === 'DECIMALE' ? { step: 'any' } : undefined,
-      }}
-      sx={{ mb: 0 }}
-    />
-  )
 }
 
 export default function Rapporti() {
@@ -158,21 +91,27 @@ export default function Rapporti() {
   useEffect(() => {
     if (!rapporto) return
     let attivo = true
-    setValori(valoriIniziali(rapporto))
-    setRisultato(null)
-    setOpzioni({})
-    const parametriConOpzioni = rapporto.parametri.filter((parametro) => parametro.haOpzioni)
-    void Promise.all(parametriConOpzioni.map(async (parametro) => ({
-      nome: parametro.nome,
-      valori: await elencareOpzioniParametro(rapporto.id, parametro.nome),
-    })))
-      .then((elenchi) => {
-        if (attivo) setOpzioni(Object.fromEntries(elenchi.map((elenco) => [elenco.nome, elenco.valori])))
-      })
-      .catch((errore) => mostraMessaggio(
-        errore instanceof Error ? errore.message : 'Errore nel caricamento delle opzioni',
-        'error',
-      ))
+
+    const caricareConfigurazione = async () => {
+      await Promise.resolve()
+      if (!attivo) return
+      setValori(valoriIniziali(rapporto))
+      setRisultato(null)
+      setOpzioni({})
+      const parametriConOpzioni = rapporto.parametri.filter((parametro) => parametro.haOpzioni)
+      const elenchi = await Promise.all(parametriConOpzioni.map(async (parametro) => ({
+        nome: parametro.nome,
+        valori: await elencareOpzioniParametro(rapporto.id, parametro.nome),
+      })))
+      if (attivo) {
+        setOpzioni(Object.fromEntries(elenchi.map((elenco) => [elenco.nome, elenco.valori])))
+      }
+    }
+
+    void caricareConfigurazione().catch((errore) => mostraMessaggio(
+      errore instanceof Error ? errore.message : 'Errore nel caricamento delle opzioni',
+      'error',
+    ))
     return () => { attivo = false }
   }, [mostraMessaggio, rapporto])
 
