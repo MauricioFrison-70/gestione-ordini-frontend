@@ -2,9 +2,10 @@
 
 ## Esperienza utente
 
-La pagina iniziale utilizza una griglia con quattro aree. I due pannelli
-superiori occupano il 75% dell'altezza disponibile e mostrano grafici derivati
-dai rapporti. Le due aree inferiori sono riservate a funzionalità future.
+La pagina iniziale utilizza una griglia con due pannelli superiori, che occupano
+circa il 65% dell'altezza disponibile e mostrano grafici derivati dai rapporti.
+I due quadranti inferiori sono riuniti in un'unica area di dialogo con
+l'assistente Gestione Ordini.
 
 Ogni pannello permette di scegliere:
 
@@ -96,12 +97,14 @@ Quando si modifica la dashboard, verificare almeno:
 - aggiornamento al ritorno della visibilità;
 - comportamento con rapporti vuoti o incompatibili.
 
-## Area riservata all'assistente IA
+## Assistente IA
 
-Una delle evoluzioni previste è utilizzare le due aree inferiori come un unico
-assistente dedicato a Gestione Ordini. La chiave del fornitore IA dovrà rimanere
-nel backend. Il frontend invierà soltanto la domanda e mostrerà la risposta.
+L'area inferiore mostra una conversazione compatta. `Invio` spedisce la domanda
+e `Maiusc+Invio` inserisce una nuova riga. Il frontend trasmette al backend la
+domanda e al massimo gli ultimi otto messaggi, ma non salva la conversazione nel
+browser. Al ricaricamento della pagina il dialogo riparte dal messaggio iniziale.
 
-Per rispondere con dati correnti, l'assistente dovrà eseguire esclusivamente
-rapporti o endpoint inseriti in una lista consentita. Non dovrà accettare SQL
-libero dal browser.
+L'assistente risponde esclusivamente a domande relative al sistema. La chiave
+del provider resta nel backend; il browser non invia SQL, nomi di procedure o
+credenziali. In questa versione le risposte usano la base statica autorizzata e
+non consultano dati commerciali correnti.

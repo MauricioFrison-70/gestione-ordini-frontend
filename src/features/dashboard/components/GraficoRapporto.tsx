@@ -73,7 +73,7 @@ function GraficoBarre({ serie }: { serie: SerieGrafico }) {
       aria-label={`Grafico a barre: ${serie.colonnaValore.etichetta} per ${serie.colonnaCategoria.etichetta}`}
       viewBox={`0 0 ${larghezza} ${altezza}`}
       width="100%"
-      style={{ display: 'block', minHeight: 220 }}
+      style={{ display: 'block', minHeight: 180 }}
     >
       {[0, 0.5, 1].map((percentuale) => {
         const y = margine.sopra + altezzaUtile * (1 - percentuale)
@@ -140,7 +140,7 @@ function GraficoTorta({ serie }: { serie: SerieGrafico }) {
         aria-label={`Grafico a torta: ${serie.colonnaValore.etichetta} per ${serie.colonnaCategoria.etichetta}`}
         viewBox="0 0 240 240"
         width="100%"
-        style={{ display: 'block', maxHeight: 230 }}
+        style={{ display: 'block', maxHeight: 200 }}
       >
         {datiPositivi.length === 1
           ? <circle cx="120" cy="120" r="100" fill={COLORI[0]} />
