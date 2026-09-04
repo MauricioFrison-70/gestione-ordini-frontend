@@ -89,14 +89,13 @@ describe('Dashboard', () => {
     })
   })
 
-  it('crea quattro aree ed esegue automaticamente i due rapporti configurati', async () => {
+  it('crea due dashboard e una singola area per l’assistente', async () => {
     const fetchMock = preparareFetch()
     render(<Dashboard />)
 
     expect(await screen.findByTestId('dashboard-panel-1')).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-panel-2')).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-empty-3')).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-empty-4')).toBeInTheDocument()
+    expect(screen.getByTestId('assistente-sistema')).toBeInTheDocument()
     expect(await screen.findByRole('img', { name: /Grafico a barre: Valore totale per Mese/ })).toBeInTheDocument()
     expect(await screen.findByRole('img', { name: /Grafico a torta: Valore totale per Venditore/ })).toBeInTheDocument()
     expect(await screen.findAllByText(/Ultimo aggiornamento:/)).toHaveLength(2)

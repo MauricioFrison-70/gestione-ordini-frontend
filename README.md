@@ -10,6 +10,8 @@ backend Spring Boot tramite API REST.
 - grafici a barre e a torta generati dai rapporti dinamici;
 - aggiornamento manuale o automatico della dashboard;
 - memorizzazione locale dell'ultima configurazione dei grafici;
+- assistente IA nella parte inferiore della dashboard, limitato alle domande
+  sul sistema Gestione Ordini;
 - gestione completa degli agenti e archiviazione dei record già utilizzati;
 - gestione dei prodotti con giacenza di sola lettura;
 - ordini di vendita con testata, righe, filtri, rilascio e annullamento;
@@ -90,6 +92,10 @@ I due pannelli superiori possono usare qualsiasi rapporto compatibile con un
 grafico. Per ogni pannello l'utente sceglie rapporto, parametri, tipo di grafico
 e intervallo di aggiornamento. Le preferenze vengono conservate nel browser.
 
+La parte inferiore riunisce i due quadranti in un'unica conversazione con
+l'assistente. Il browser non riceve la chiave del provider e non conserva la
+conversazione nel `localStorage`.
+
 Il comportamento completo è descritto in
 [docs/dashboard.md](docs/dashboard.md).
 
@@ -133,6 +139,7 @@ src/
 ├── config/                  configurazione dell'API
 ├── features/
 │   ├── dashboard/           pannelli, grafici e preferenze
+│   ├── assistente/          dialogo IA dedicato al sistema
 │   ├── agentes/             anagrafica degli agenti
 │   ├── prodotti/            prodotti e giacenza
 │   ├── ordiniVendita/       testate e righe di vendita
@@ -155,12 +162,13 @@ Risorse principali utilizzate:
 - `/api/prodotti`;
 - `/api/ordini-vendita` e relative `/righe`;
 - `/api/ordini-acquisto` e relative `/righe`;
-- `/api/rapporti`.
+- `/api/rapporti`;
+- `/api/assistente/domande`.
 
 Repository correlato:
 [gestione-ordini-backend](https://github.com/MauricioFrison-70/gestione-ordini-backend).
 
-La documentazione funzionale destinata anche al futuro assistente IA è
+La documentazione funzionale utilizzata anche dall'assistente IA è
 disponibile nella
 [base di conoscenza del backend](https://github.com/MauricioFrison-70/gestione-ordini-backend/blob/main/docs/ai/base-conoscenza-sistema.md).
 

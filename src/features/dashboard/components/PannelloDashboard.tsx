@@ -236,24 +236,25 @@ export default function PannelloDashboard({
       sx={{
         height: '100%',
         minHeight: { xs: 420, lg: 0 },
+        p: { xs: 1.5, xl: 2 },
         display: 'flex',
         flexDirection: 'column',
-        gap: 1.5,
+        gap: 1,
         overflow: 'auto',
         border: '1px solid',
         borderColor: 'divider',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
         {configurazione.tipoGrafico === 'BARRE'
           ? <BarChartIcon color="primary" />
           : <DonutLargeIcon color="primary" />}
-        <Typography variant="h2" sx={{ fontSize: '1.15rem', mb: 0 }}>
+        <Typography variant="h2" sx={{ fontSize: '1.05rem', mb: 0 }}>
           Dashboard {indice}
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1.4fr 0.8fr 0.8fr' }, gap: 1.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1.4fr 0.8fr 0.8fr' }, gap: 1 }}>
         <FormControl fullWidth size="small">
           <InputLabel id={`dashboard-${indice}-rapporto-label`}>Rapporto</InputLabel>
           <Select
@@ -318,7 +319,7 @@ export default function PannelloDashboard({
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Button
           size="small"
           variant="contained"
@@ -344,7 +345,7 @@ export default function PannelloDashboard({
       </Box>
 
       {errore && <Alert severity="error" onClose={() => setErrore(null)}>{errore}</Alert>}
-      <Box sx={{ flex: 1, minHeight: 220, display: 'grid', alignItems: 'center' }}>
+      <Box sx={{ flex: 1, minHeight: 180, display: 'grid', alignItems: 'center' }}>
         {eseguendo && !risultato && <Box sx={{ textAlign: 'center' }}><CircularProgress /></Box>}
         {!eseguendo && !risultato && !errore && (
           <Typography color="text.secondary" sx={{ textAlign: 'center' }}>
