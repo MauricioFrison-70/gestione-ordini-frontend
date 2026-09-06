@@ -57,6 +57,14 @@ function formattareValore(valore: number, colonna: ColonnaRapporto): string {
   return new Intl.NumberFormat('it-IT', { maximumFractionDigits: 2 }).format(valore)
 }
 
+function formattarePercentuale(valore: number, totale: number): string {
+  return new Intl.NumberFormat('it-IT', {
+    style: 'percent',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(valore / totale)
+}
+
 function GraficoBarre({ serie }: { serie: SerieGrafico }) {
   const larghezza = 560
   const altezza = 300
@@ -143,7 +151,11 @@ function GraficoTorta({ serie }: { serie: SerieGrafico }) {
         style={{ display: 'block', maxHeight: 200 }}
       >
         {datiPositivi.length === 1
-          ? <circle cx="120" cy="120" r="100" fill={COLORI[0]} />
+          ? (
+              <circle cx="120" cy="120" r="100" fill={COLORI[0]}>
+                <title>{`${datiPositivi[0].etichetta}: ${formattareValore(datiPositivi[0].valore, serie.colonnaValore)} (${formattarePercentuale(datiPositivi[0].valore, totale)})`}</title>
+              </circle>
+            )
           : datiPositivi.map((dato, indice) => {
               const inizio = angolo
               const fine = angolo + (dato.valore / totale) * 360
@@ -151,7 +163,7 @@ function GraficoTorta({ serie }: { serie: SerieGrafico }) {
               return (
                 <path key={`${dato.etichetta}-${indice}`} d={arco(120, 120, 100, inizio, fine)}
                   fill={COLORI[indice % COLORI.length]} stroke="#1e1e1e" strokeWidth="2">
-                  <title>{`${dato.etichetta}: ${formattareValore(dato.valore, serie.colonnaValore)}`}</title>
+                  <title>{`${dato.etichetta}: ${formattareValore(dato.valore, serie.colonnaValore)} (${formattarePercentuale(dato.valore, totale)})`}</title>
                 </path>
               )
             })}
@@ -168,7 +180,7 @@ function GraficoTorta({ serie }: { serie: SerieGrafico }) {
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="caption" noWrap sx={{ display: 'block' }}>{dato.etichetta}</Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                {formattareValore(dato.valore, serie.colonnaValore)}
+                {formattareValore(dato.valore, serie.colonnaValore)} · {formattarePercentuale(dato.valore, totale)}
               </Typography>
             </Box>
           </Box>

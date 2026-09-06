@@ -66,6 +66,41 @@ Vite utilizza normalmente `http://localhost:5173`.
 > Le variabili con prefisso `VITE_` vengono incluse nel codice inviato al
 > browser. Non inserirvi password, token, chiavi API o altri segreti.
 
+## Immagine Docker del frontend
+
+Il `Dockerfile` usa un build multi-stage: Node.js viene utilizzato soltanto per
+compilare l'applicazione, mentre l'immagine finale usa Nginx non privilegiato
+per pubblicare i file statici. Le rotte React dispongono del fallback verso
+`index.html` e il container espone un health check dedicato.
+
+Costruzione dell'immagine con il backend locale sulla porta predefinita:
+
+```powershell
+docker build -t gestione-ordini-frontend:local .
+```
+
+La URL della API viene incorporata nei file statici durante il build. Per
+utilizzare un indirizzo diverso:
+
+```powershell
+docker build --build-arg VITE_API_URL="https://api.example.com/api" `
+  -t gestione-ordini-frontend:local .
+```
+
+Esecuzione locale:
+
+```powershell
+docker run --rm -p 5173:8080 gestione-ordini-frontend:local
+```
+
+Aprire `http://localhost:5173`. Il backend deve essere raggiungibile dalla
+macchina dell'utente all'indirizzo configurato durante il build; nessuna
+credenziale deve essere inserita in variabili con prefisso `VITE_`.
+
+Per avviare frontend, backend, SQL Server e dati dimostrativi insieme, usare
+`avvia-docker.ps1` nel repository adiacente `gestione-ordini-backend`. Lo
+script riconosce anche il nome locale `gestioneOrdiniBackend`.
+
 ## Script disponibili
 
 | Comando | Descrizione |
