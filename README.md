@@ -103,9 +103,11 @@ script riconosce anche il nome locale `gestioneOrdiniBackend`.
 
 ## Pubblicazione dell'immagine
 
-Il workflow `.github/workflows/pubblica-immagine.yml` esegue lint, test e build
-dopo ogni push su `main`; soltanto se tutte le verifiche terminano correttamente
-pubblica l'immagine Linux AMD64 nel GitHub Container Registry:
+Il workflow `.github/workflows/pubblica-immagine.yml` valida ogni pull request
+verso `main` con lint, test Vitest, build di produzione e test end-to-end
+Playwright su Chromium. Dopo il merge, tutte le verifiche vengono ripetute su
+`main`; soltanto se terminano correttamente viene pubblicata l'immagine Linux
+AMD64 nel GitHub Container Registry:
 
 ```text
 ghcr.io/mauriciofrison-70/gestione-ordini-frontend:latest
