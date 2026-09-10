@@ -5,10 +5,11 @@ import type {
   TipoGrafico,
 } from '../types/dashboard'
 
-export const CHIAVE_PREFERENZE_DASHBOARD = 'gestione-ordini.dashboard.v1'
+const CHIAVE_PREFERENZE_DASHBOARD_V1 = 'gestione-ordini.dashboard.v1'
+export const CHIAVE_PREFERENZE_DASHBOARD = 'gestione-ordini.dashboard.v2'
 
 export const PREFERENZE_PREDEFINITE: PreferenzeDashboard = {
-  versione: 1,
+  versione: 2,
   pannelli: [
     {
       rapportoCodice: 'VENDITE_ULTIMI_DODICI_MESI',
@@ -56,17 +57,28 @@ function normalizzarePannello(
 export function leggerePreferenzeDashboard(): PreferenzeDashboard {
   try {
     const contenuto = localStorage.getItem(CHIAVE_PREFERENZE_DASHBOARD)
+      ?? localStorage.getItem(CHIAVE_PREFERENZE_DASHBOARD_V1)
     if (!contenuto) return PREFERENZE_PREDEFINITE
-    const preferenze = JSON.parse(contenuto) as Partial<PreferenzeDashboard>
-    if (preferenze.versione !== 1 || !Array.isArray(preferenze.pannelli)
+    const preferenze = JSON.parse(contenuto) as {
+      versione?: number
+      pannelli?: Partial<ConfigurazionePannello>[]
+    }
+    if ((preferenze.versione !== 1 && preferenze.versione !== 2)
+      || !Array.isArray(preferenze.pannelli)
       || preferenze.pannelli.length !== 2) {
       return PREFERENZE_PREDEFINITE
     }
+    const secondoPannello = normalizzarePannello(
+      preferenze.pannelli[1],
+      PREFERENZE_PREDEFINITE.pannelli[1],
+    )
+    if (preferenze.versione === 1) secondoPannello.tipoGrafico = 'TORTA'
+
     return {
-      versione: 1,
+      versione: 2,
       pannelli: [
         normalizzarePannello(preferenze.pannelli[0], PREFERENZE_PREDEFINITE.pannelli[0]),
-        normalizzarePannello(preferenze.pannelli[1], PREFERENZE_PREDEFINITE.pannelli[1]),
+        secondoPannello,
       ],
     }
   } catch {
@@ -77,6 +89,7 @@ export function leggerePreferenzeDashboard(): PreferenzeDashboard {
 export function salvarePreferenzeDashboard(preferenze: PreferenzeDashboard): void {
   try {
     localStorage.setItem(CHIAVE_PREFERENZE_DASHBOARD, JSON.stringify(preferenze))
+    localStorage.removeItem(CHIAVE_PREFERENZE_DASHBOARD_V1)
   } catch {
     // La dashboard resta utilizzabile anche quando il browser blocca lo storage.
   }

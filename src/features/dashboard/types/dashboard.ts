@@ -11,6 +11,6 @@ export interface ConfigurazionePannello {
 }
 
 export interface PreferenzeDashboard {
-  versione: 1
+  versione: 2
   pannelli: [ConfigurazionePannello, ConfigurazionePannello]
 }

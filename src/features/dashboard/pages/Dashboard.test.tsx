@@ -98,6 +98,11 @@ describe('Dashboard', () => {
     expect(screen.getByTestId('assistente-sistema')).toBeInTheDocument()
     expect(await screen.findByRole('img', { name: /Grafico a barre: Valore totale per Mese/ })).toBeInTheDocument()
     expect(await screen.findByRole('img', { name: /Grafico a torta: Valore totale per Venditore/ })).toBeInTheDocument()
+    expect(within(screen.getByTestId('dashboard-panel-2')).getByText(
+      /57,9\s*%/,
+      { selector: 'span' },
+    )).toBeInTheDocument()
+    expect(within(screen.getByTestId('dashboard-panel-1')).queryByText(/%/)).not.toBeInTheDocument()
     expect(await screen.findAllByText(/Ultimo aggiornamento:/)).toHaveLength(2)
     expect(within(screen.getByTestId('dashboard-panel-1')).getByLabelText('Aggiornamento'))
       .toHaveTextContent('1 minuto')
@@ -133,6 +138,42 @@ describe('Dashboard', () => {
       }
       expect(preferenze.pannelli[0].tipoGrafico).toBe('TORTA')
       expect(preferenze.pannelli[0].intervalloAggiornamento).toBe(30)
+    })
+  })
+
+  it('migra le preferenze precedenti avviando la dashboard 2 con il grafico a torta', async () => {
+    localStorage.setItem('gestione-ordini.dashboard.v1', JSON.stringify({
+      versione: 1,
+      pannelli: [
+        {
+          rapportoCodice: 'VENDITE_ULTIMI_DODICI_MESI',
+          tipoGrafico: 'BARRE',
+          intervalloAggiornamento: 60,
+          parametriPerRapporto: {},
+        },
+        {
+          rapportoCodice: 'RANKING_VENDITORI_PER_PERIODO',
+          tipoGrafico: 'BARRE',
+          intervalloAggiornamento: 60,
+          parametriPerRapporto: {},
+        },
+      ],
+    }))
+    preparareFetch()
+
+    render(<Dashboard />)
+
+    const pannello = await screen.findByTestId('dashboard-panel-2')
+    expect(await within(pannello).findByRole('img', {
+      name: /Grafico a torta: Valore totale per Venditore/,
+    })).toBeInTheDocument()
+    await waitFor(() => {
+      const preferenze = JSON.parse(
+        localStorage.getItem(CHIAVE_PREFERENZE_DASHBOARD) ?? '{}',
+      ) as { versione: number, pannelli: { tipoGrafico: string }[] }
+      expect(preferenze.versione).toBe(2)
+      expect(preferenze.pannelli[1].tipoGrafico).toBe('TORTA')
+      expect(localStorage.getItem('gestione-ordini.dashboard.v1')).toBeNull()
     })
   })
 
