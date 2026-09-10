@@ -101,6 +101,21 @@ Per avviare frontend, backend, SQL Server e dati dimostrativi insieme, usare
 `avvia-docker.ps1` nel repository adiacente `gestione-ordini-backend`. Lo
 script riconosce anche il nome locale `gestioneOrdiniBackend`.
 
+## Pubblicazione dell'immagine
+
+Il workflow `.github/workflows/pubblica-immagine.yml` esegue lint, test e build
+dopo ogni push su `main`; soltanto se tutte le verifiche terminano correttamente
+pubblica l'immagine Linux AMD64 nel GitHub Container Registry:
+
+```text
+ghcr.io/mauriciofrison-70/gestione-ordini-frontend:latest
+```
+
+Sono pubblicati anche un tag associato al commit (`sha-*`) e, per i tag Git
+`v*`, i corrispondenti tag di versione. Il pacchetto pronto per l'utente finale,
+con Compose e avvio automatico per Windows, viene prodotto dal repository del
+backend tramite GitHub Releases.
+
 ## Script disponibili
 
 | Comando | Descrizione |
