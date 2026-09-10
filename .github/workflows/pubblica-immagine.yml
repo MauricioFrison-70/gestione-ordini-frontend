@@ -1,6 +1,8 @@
 name: Verifica e pubblica immagine Docker
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     tags: ['v*']
@@ -12,16 +14,17 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: mauriciofrison-70/gestione-ordini-frontend
+  VITE_API_URL: http://127.0.0.1:8081/api
 
 jobs:
   test:
-    name: Test frontend
+    name: Qualita frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Scarica i sorgenti
         uses: actions/checkout@v4
@@ -44,10 +47,51 @@ jobs:
       - name: Verifica il build di produzione
         run: npm run build
 
-  pubblica:
-    name: Pubblica frontend
+  e2e:
+    name: Test end-to-end
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Scarica i sorgenti
+        uses: actions/checkout@v4
+
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Installa Chromium e le dipendenze di sistema
+        run: npx playwright install --with-deps chromium
+
+      - name: Esegui i test end-to-end
+        run: npm run test:e2e
+
+      - name: Conserva il rapporto Playwright in caso di errore
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapporto-playwright
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  pubblica:
+    name: Pubblica frontend
+    needs: [test, e2e]
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Scarica i sorgenti
         uses: actions/checkout@v4
