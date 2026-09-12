@@ -34,6 +34,7 @@ modificare ed eliminare un ordine, vengono sempre validate anche dal backend.
 - write-excel-file per Excel
 - Vitest e Testing Library
 - Playwright per i test end-to-end
+- Azure Static Web Apps per la pubblicazione cloud
 
 ## Prerequisiti
 
@@ -65,6 +66,23 @@ Vite utilizza normalmente `http://localhost:5173`.
 
 > Le variabili con prefisso `VITE_` vengono incluse nel codice inviato al
 > browser. Non inserirvi password, token, chiavi API o altri segreti.
+
+### Configurazione per Azure Static Web Apps
+
+Il file `public/staticwebapp.config.json` configura il fallback delle rotte
+React verso `index.html` e aggiunge header HTTP di sicurezza. Vite lo copia
+automaticamente nella radice della cartella `dist`.
+
+Durante il build su Azure, configurare `VITE_API_URL` con l'indirizzo pubblico
+del Container App del backend:
+
+```text
+https://<nome-backend>.<regione>.azurecontainerapps.io/api
+```
+
+Il file `.env.azure.example` contiene un esempio senza credenziali. Poiché
+`VITE_API_URL` è incorporata nel bundle, una modifica dell'indirizzo richiede
+un nuovo build e deploy del frontend.
 
 ## Immagine Docker del frontend
 
