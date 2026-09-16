@@ -84,6 +84,21 @@ Il file `.env.azure.example` contiene un esempio senza credenziali. Poiché
 `VITE_API_URL` è incorporata nel bundle, una modifica dell'indirizzo richiede
 un nuovo build e deploy del frontend.
 
+La pubblicazione su Azure è automatizzata dal workflow
+`.github/workflows/pubblica-azure-static-web-app.yml`. Nel repository GitHub
+devono essere configurati:
+
+- la variabile Actions `VITE_API_URL`, con la URL pubblica del backend seguita
+  da `/api`;
+- il secret Actions
+  `AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_BEACH_0E452EE10`, con il token di
+  distribuzione della Static Web App.
+
+Il workflow viene avviato dopo il completamento con successo di
+`Verifica e pubblica immagine Docker` sulla branch `main`. In questo modo il
+frontend viene pubblicato soltanto dopo lint, test unitari, build e test
+end-to-end. È disponibile anche l'avvio manuale dalla scheda Actions.
+
 ## Immagine Docker del frontend
 
 Il `Dockerfile` usa un build multi-stage: Node.js viene utilizzato soltanto per

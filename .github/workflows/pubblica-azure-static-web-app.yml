@@ -1,0 +1,68 @@
+name: Pubblica frontend su Azure Static Web Apps
+
+on:
+  workflow_run:
+    workflows: ["Verifica e pubblica immagine Docker"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: azure-static-web-app-production
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pubblica:
+    name: Pubblica Static Web App
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Scarica i sorgenti verificati
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Verifica la configurazione Azure
+        shell: bash
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          AZURE_DEPLOYMENT_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_BEACH_0E452EE10 }}
+        run: |
+          if [ -z "$VITE_API_URL" ]; then
+            echo "::error::La variabile del repository VITE_API_URL non è configurata."
+            exit 1
+          fi
+          if [ -z "$AZURE_DEPLOYMENT_TOKEN" ]; then
+            echo "::error::Il token di distribuzione di Azure Static Web Apps non è configurato."
+            exit 1
+          fi
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Compila il frontend per Azure
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      - name: Pubblica su Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GRAY_BEACH_0E452EE10 }}
+          action: upload
+          app_location: dist
+          output_location: ''
+          skip_app_build: true
