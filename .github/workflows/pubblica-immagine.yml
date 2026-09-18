@@ -92,9 +92,19 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
     steps:
       - name: Scarica i sorgenti
         uses: actions/checkout@v4
+
+      - name: Verifica la configurazione di produzione
+        shell: bash
+        run: |
+          if [ -z "$VITE_API_URL" ]; then
+            echo "::error::La variabile del repository VITE_API_URL non e configurata."
+            exit 1
+          fi
 
       - name: Configura Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -124,6 +134,8 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
+          build-args: |
+            VITE_API_URL=${{ env.VITE_API_URL }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=frontend
