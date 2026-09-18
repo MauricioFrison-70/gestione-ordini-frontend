@@ -146,6 +146,11 @@ AMD64 nel GitHub Container Registry:
 ghcr.io/mauriciofrison-70/gestione-ordini-frontend:latest
 ```
 
+La stessa variabile Actions `VITE_API_URL` usata dalla distribuzione Azure
+viene passata come build argument alla versione pubblicata nel GHCR. In questo
+modo sia l'immagine Docker di `main` sia Azure Static Web Apps puntano allo
+stesso backend pubblico.
+
 Sono pubblicati anche un tag associato al commit (`sha-*`) e, per i tag Git
 `v*`, i corrispondenti tag di versione. Il pacchetto pronto per l'utente finale,
 con Compose e avvio automatico per Windows, viene prodotto dal repository del
