@@ -1,4 +1,4 @@
-import { Drawer, List, ListItemButton, ListItemText, Toolbar } from "@mui/material";
+import { Drawer, List, ListItemButton, ListItemText } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
@@ -21,7 +21,6 @@ export default function Menu() {
         },
       }}
     >
-      <Toolbar />
       <List>
         <ListItemButton onClick={() => navigate("/dashboard")}>
           <ListItemText primary="Dashboard" />

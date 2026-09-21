@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Menu from "./components/Menu";
 import { FeedbackProvider } from "./components/FeedbackProvider";
-import { Box, Toolbar } from "@mui/material";
+import { Box } from "@mui/material";
 
 import Agentes from "./features/agentes/pages/Agentes";
 import CriarAgente from "./features/agentes/pages/CriarAgente";
@@ -36,12 +36,11 @@ function App() {
           sx={{
             flexGrow: 1,
             p: 4,
+            pt: 2,
             backgroundColor: "background.default",
             minHeight: "100vh",
           }}
         >
-          <Toolbar />
-
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
