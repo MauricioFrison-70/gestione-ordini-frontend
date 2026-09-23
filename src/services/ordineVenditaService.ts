@@ -3,17 +3,11 @@ import type {
   OrdineVendita,
   OrdineVenditaRequest,
 } from '../features/ordiniVendita/types/ordineVendita'
+import { apiFetch } from './apiFetch'
 
 const URL_ORDINI_VENDITA = `${API_URL}/ordini-vendita`
-const MESSAGGIO_ERRORE_RETE =
-  'Impossibile contattare il server. Verificare che il backend sia avviato e riprovare.'
-
 async function eseguireFetch(url: string, init?: RequestInit): Promise<Response> {
-  try {
-    return init ? await fetch(url, init) : await fetch(url)
-  } catch {
-    throw new Error(MESSAGGIO_ERRORE_RETE)
-  }
+  return apiFetch(url, init)
 }
 
 async function eseguireRichiesta<T>(

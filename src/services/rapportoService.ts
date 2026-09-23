@@ -1,4 +1,5 @@
 import { API_URL } from '../config/api'
+import { apiFetch } from './apiFetch'
 import type {
   OpzioneParametro,
   Rapporto,
@@ -6,16 +7,8 @@ import type {
 } from '../features/rapporti/types/rapporto'
 
 const URL_RAPPORTI = `${API_URL}/rapporti`
-const MESSAGGIO_ERRORE_RETE =
-  'Impossibile contattare il server. Verificare che il backend sia avviato e riprovare.'
-
 async function richiesta<T>(url: string, messaggioErrore: string, init?: RequestInit): Promise<T> {
-  let response: Response
-  try {
-    response = init ? await fetch(url, init) : await fetch(url)
-  } catch {
-    throw new Error(MESSAGGIO_ERRORE_RETE)
-  }
+  const response = await apiFetch(url, init)
 
   if (!response.ok) {
     const corpo = await response.json().catch(() => null) as { errore?: string } | null

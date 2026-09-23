@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Menu from "./components/Menu";
+import DatabaseWakeupAlert from "./components/DatabaseWakeupAlert";
 import { FeedbackProvider } from "./components/FeedbackProvider";
 import { Box } from "@mui/material";
 
@@ -41,6 +42,7 @@ function App() {
             minHeight: "100vh",
           }}
         >
+          <DatabaseWakeupAlert />
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />

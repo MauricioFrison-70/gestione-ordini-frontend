@@ -3,18 +3,14 @@ import type {
   RigaOrdineAcquisto,
   RigaOrdineAcquistoRequest,
 } from '../features/ordiniAcquisto/types/rigaOrdineAcquisto'
+import { apiFetch } from './apiFetch'
 
 function url(ordineId: number): string {
   return `${API_URL}/ordini-acquisto/${ordineId}/righe`
 }
 
 async function richiesta<T>(indirizzo: string, messaggio: string, init?: RequestInit): Promise<T> {
-  let response: Response
-  try {
-    response = init ? await fetch(indirizzo, init) : await fetch(indirizzo)
-  } catch {
-    throw new Error('Impossibile contattare il server. Verificare che il backend sia avviato.')
-  }
+  const response = await apiFetch(indirizzo, init)
   if (!response.ok) {
     const corpo = await response.json().catch(() => null) as { errore?: string } | null
     throw new Error(corpo?.errore || messaggio)
@@ -59,12 +55,7 @@ export async function eliminareRigaOrdineAcquisto(
   ordineId: number,
   rigaId: number,
 ): Promise<void> {
-  let response: Response
-  try {
-    response = await fetch(`${url(ordineId)}/${rigaId}`, { method: 'DELETE' })
-  } catch {
-    throw new Error('Impossibile contattare il server. Verificare che il backend sia avviato.')
-  }
+  const response = await apiFetch(`${url(ordineId)}/${rigaId}`, { method: 'DELETE' })
   if (!response.ok) {
     const corpo = await response.json().catch(() => null) as { errore?: string } | null
     throw new Error(corpo?.errore || "Errore nell'eliminazione della riga")

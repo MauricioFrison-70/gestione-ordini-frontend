@@ -1,10 +1,11 @@
 import { API_URL } from '../config/api'
 import type { Prodotto, ProdottoRequest, ProdottoUpdateRequest } from '../features/prodotti/types/prodotto'
+import { apiFetch } from './apiFetch'
 
 const URL_PRODOTTI = `${API_URL}/prodotti`
 
 async function eseguireRichiesta<T>(url: string, messaggioErrore: string, init?: RequestInit): Promise<T> {
-  const response = init ? await fetch(url, init) : await fetch(url)
+  const response = await apiFetch(url, init)
 
   if (!response.ok) {
     let dettaglioErrore: string | null = null
@@ -54,7 +55,7 @@ export function aggiornareProdotto(id: number, prodotto: ProdottoUpdateRequest):
 }
 
 export async function eliminareProdotto(id: number): Promise<void> {
-  const response = await fetch(`${URL_PRODOTTI}/${id}`, { method: 'DELETE' })
+  const response = await apiFetch(`${URL_PRODOTTI}/${id}`, { method: 'DELETE' })
 
   if (!response.ok) {
     throw new Error('Errore nell’eliminazione del prodotto')

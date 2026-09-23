@@ -3,17 +3,11 @@ import type {
   OrdineAcquisto,
   OrdineAcquistoRequest,
 } from '../features/ordiniAcquisto/types/ordineAcquisto'
+import { apiFetch } from './apiFetch'
 
 const URL = `${API_URL}/ordini-acquisto`
-const ERRORE_RETE = 'Impossibile contattare il server. Verificare che il backend sia avviato.'
-
 async function richiesta<T>(url: string, messaggio: string, init?: RequestInit): Promise<T> {
-  let response: Response
-  try {
-    response = init ? await fetch(url, init) : await fetch(url)
-  } catch {
-    throw new Error(ERRORE_RETE)
-  }
+  const response = await apiFetch(url, init)
   if (!response.ok) {
     const corpo = await response.json().catch(() => null) as { errore?: string } | null
     throw new Error(corpo?.errore || messaggio)
@@ -52,12 +46,7 @@ export function annullareOrdineAcquisto(id: number): Promise<OrdineAcquisto> {
 }
 
 export async function eliminareOrdineAcquisto(id: number): Promise<void> {
-  let response: Response
-  try {
-    response = await fetch(`${URL}/${id}`, { method: 'DELETE' })
-  } catch {
-    throw new Error(ERRORE_RETE)
-  }
+  const response = await apiFetch(`${URL}/${id}`, { method: 'DELETE' })
   if (!response.ok) {
     const corpo = await response.json().catch(() => null) as { errore?: string } | null
     throw new Error(corpo?.errore || "Errore nell'eliminazione dell'ordine di acquisto")

@@ -3,20 +3,14 @@ import type {
   RigaOrdineVendita,
   RigaOrdineVenditaRequest,
 } from '../features/ordiniVendita/types/rigaOrdineVendita'
-
-const MESSAGGIO_ERRORE_RETE =
-  'Impossibile contattare il server. Verificare che il backend sia avviato e riprovare.'
+import { apiFetch } from './apiFetch'
 
 function urlRighe(ordineId: number): string {
   return `${API_URL}/ordini-vendita/${ordineId}/righe`
 }
 
 async function eseguireFetch(url: string, init?: RequestInit): Promise<Response> {
-  try {
-    return init ? await fetch(url, init) : await fetch(url)
-  } catch {
-    throw new Error(MESSAGGIO_ERRORE_RETE)
-  }
+  return apiFetch(url, init)
 }
 
 async function eseguireRichiesta<T>(
