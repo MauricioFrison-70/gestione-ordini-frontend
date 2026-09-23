@@ -1,5 +1,6 @@
 import { API_URL } from '../config/api'
 import type { Agente, AgenteRequest, TipoAgente } from '../features/agentes/types/agente'
+import { apiFetch } from './apiFetch'
 
 const URL_AGENTI = `${API_URL}/agenti`
 const URL_TIPI_AGENTE = `${API_URL}/tipo-agente`
@@ -16,7 +17,7 @@ async function eseguireRichiesta<T>(
   messaggioErrore: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = init ? await fetch(url, init) : await fetch(url)
+  const response = await apiFetch(url, init)
 
   if (!response.ok) {
     throw new Error(messaggioErrore)
@@ -54,7 +55,7 @@ export function atualizarAgente(id: number, agente: AgenteRequest): Promise<Agen
 }
 
 export async function excluirAgente(id: number): Promise<void> {
-  const response = await fetch(`${URL_AGENTI}/${id}`, { method: 'DELETE' })
+  const response = await apiFetch(`${URL_AGENTI}/${id}`, { method: 'DELETE' })
 
   if (!response.ok) {
     const corpo = await response.json().catch(() => null) as { codice?: string, errore?: string } | null
