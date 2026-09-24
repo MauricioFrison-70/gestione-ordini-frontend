@@ -11,6 +11,7 @@ describe('DatabaseWakeupAlert', () => {
       detail: { attivo: true },
     }))
     expect(screen.getByText(/Il database Azure si sta riattivando/)).toBeInTheDocument()
+    expect(screen.getByText(/fino a 90 secondi/)).toBeInTheDocument()
 
     fireEvent(window, new CustomEvent(EVENTO_DATABASE_IN_RIATTIVAZIONE, {
       detail: { attivo: false },

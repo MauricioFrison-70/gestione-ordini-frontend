@@ -24,7 +24,10 @@ const riga = {
 }
 
 describe('rigaOrdineVenditaService', () => {
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
 
   it('elenca le righe dell ordine', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => [riga] })
@@ -78,10 +81,13 @@ describe('rigaOrdineVenditaService', () => {
   })
 
   it('mostra un messaggio comprensibile quando il server non è raggiungibile', async () => {
+    vi.useFakeTimers()
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
 
-    await expect(elencareRigheOrdineVendita(10)).rejects.toThrow(
-      'Impossibile contattare il server. Verificare che il backend sia avviato e riprovare.',
+    const verifica = expect(elencareRigheOrdineVendita(10)).rejects.toThrow(
+      'Il database non è diventato disponibile entro 90 secondi. Riprovare.',
     )
+    await vi.advanceTimersByTimeAsync(90_000)
+    await verifica
   })
 })

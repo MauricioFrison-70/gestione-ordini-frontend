@@ -28,7 +28,7 @@ export default function DatabaseWakeupAlert() {
       sx={{ mb: 2 }}
     >
       Il database Azure si sta riattivando. Attendere: il caricamento riprenderà
-      automaticamente e può richiedere fino a circa un minuto.
+      automaticamente e può richiedere fino a 90 secondi.
     </Alert>
   )
 }
