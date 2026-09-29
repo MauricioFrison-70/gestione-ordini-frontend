@@ -22,7 +22,7 @@ describe('apiFetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it('mostra la riattivazione solo dopo dieci secondi di attesa', async () => {
+  it('mostra la riattivazione solo dopo cinque secondi di attesa', async () => {
     vi.useFakeTimers()
     let completareRichiesta!: (response: Response) => void
     const fetchMock = vi.fn().mockReturnValue(new Promise<Response>((resolve) => {
@@ -36,7 +36,7 @@ describe('apiFetch', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const richiesta = apiFetch('/api/agenti')
-    await vi.advanceTimersByTimeAsync(9_999)
+    await vi.advanceTimersByTimeAsync(4_999)
     expect(stati).toEqual([])
 
     await vi.advanceTimersByTimeAsync(1)
