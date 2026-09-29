@@ -5,7 +5,7 @@ const MESSAGGIO_TIMEOUT_DATABASE =
 
 export const EVENTO_DATABASE_IN_RIATTIVAZIONE = 'database-in-riattivazione'
 
-const RITARDO_AVVISO_MS = 10_000
+const RITARDO_AVVISO_MS = 5_000
 const TEMPO_MASSIMO_RIATTIVAZIONE_MS = 90_000
 const ATTESA_PREDEFINITA_MS = 8_000
 const richiesteInAttesa = new Set<symbol>()
